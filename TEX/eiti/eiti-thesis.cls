@@ -301,6 +301,10 @@
         \hfill \break
         \hfill \break
         \hfill \break
+        \hfill \break
+        \hfill \break
+        \hfill \break
+        \hfill \break
         \normalsize
         \@author \\
         \normalsize
@@ -311,7 +315,6 @@
         \@fourthAuthor \\
         \normalsize
         \@fifthAuthor \\
-        \hfill \break
         \hfill \break
         \vfill
         WARSZAWA \@date
