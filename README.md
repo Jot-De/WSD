@@ -1,2 +1,2 @@
 # WSD
-Project for Multiagent Systems course on WEIT PW 
+Project for Multiagent Systems course on WEITI PW 
