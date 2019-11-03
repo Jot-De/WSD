@@ -14,7 +14,7 @@
 *.xml
 *-blx.bib
 
-*.pdf
+releases/
 !pdfs/*.pdf
 
 build
