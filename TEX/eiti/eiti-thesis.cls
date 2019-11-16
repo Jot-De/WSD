@@ -58,6 +58,8 @@
 \RequirePackage{url}
 \RequirePackage{xkeyval}
 \RequirePackage{xspace}
+\RequirePackage{tikz}
+\RequirePackage{soul}
 
 %--------------------------------------
 % PdfTeX specific configuration
