@@ -1,42 +1,43 @@
 \newpage
 \section{Słowny opis koncepcji systemu}
 
-Proponowanym przez nas rozwiązaniem problemu omówionego w punkcie pierwszym jest SmartPark - system wieloagentowy ułatwiający znalezienie miejsca parkingowego, który pozwoli na znaczną redukcję liczby krążących w jego poszukiwaniu samochodów.
+Proponowanym przez nas rozwiązaniem problemu omówionego w punkcie pierwszym jest system wieloagentowy ułatwiający znalezienie miejsca parkingowego, który pozwoli na znaczną redukcję liczby krążących w jego poszukiwaniu samochodów.
 
-System będzie składać się z sieci parkingów oraz aplikacji mobilnej dla kierowców pojazdów. Przy wykorzystaniu aplikacji, użytkownik będzie mógł zrealizować wyszukanie oraz nawigację do jak najbliższego parkingu po wcześniejszym określeniu preferencji dotyczącej jego typu (płatny/bezpłatny).  System zapewni również równomierne rozłożenie zajętości parkingów poprzez odpowiednie propozycje. Zrównoważony powinien zostać cel kierowcy jakim jest znalezienie najbliższego parkingu i jak najbardziej równomierne zapełnianie wszystkich parkingów. Kluczowe jest tutaj unikanie sytuacji, gdy  jeden parking został zapełniony,a pozostałe będą puste.
+System będzie składać się z sieci parkingów oraz aplikacji mobilnej dla kierowców pojazdów. Przy wykorzystaniu aplikacji, użytkownik będzie mógł zrealizować wyszukanie oraz nawigację do wybranego pobliskiego parkingu po wcześniejszym zgłoszeniu swojej lokalizacji. 
 
-Każde miejsce parkingowe powinno zostać wyposażone w czujniki ultradźwiękowe wykrywające zajętość miejsca oraz kamerę identyfikującą konkretny pojazd. W przypadku zwolnienia miejsca powinna podnosić się blokada uniemożliwiająca wjazd niezgłoszonemu samochodowi. Każdy parking agreguje konkretną liczbę miejsc postojowych na przykład na odcinku określonej ulicy i posiada informacje o ich zajętości. Każde miejsce parkingowe po zwolnieniu wysyła adekwatną informację do parkingu, do którego przynależy, dzięki czemu może on zgłosić chęć przyjęcia następnego kierowcy. Również gdy kierowca zgłosi chęć parkowania i kierowany jest do określonego parkingu, zwiększa się wtedy zajętość i parking oczekuje na kierowcę przez pewien ustalony czas, nie przyjmując kolejnych kierowców, jeśli brak jest wolnych miejsc lub parkingi wypełniają się nierównomiernie. Dzięki temu mamy pewność, że po dojechaniu na parking znajdziemy wolne miejsce. Gdy kierowca podjedzie do miejsca na przydzielonym parkingu i zostanie poprawnie zidentyfikowany przez kamerę poprzez numer rejestracyjny, blokada opuszcza się, kierowca parkuje na miejscu postojowym, a miejsce informuje parking o jego prawidłowym zajęciu, zwiększając zajętość jego aż do chwili opuszczenia miejsca przez pojazd. Przydzielony parkingu docelowo powinien być oznaczony np korzystając z Open Street Map jako region do którego prowadzony jest kierowca.
+System po zgłoszeniu chęci zaparkowania proponuje pięć pobliskich parkingów z wolnymi miejscami, spośród których kierowca może wybrać ten do którego chce się udać. Kluczowe w systemie jest pozwolenie kierowcy na znalezienie jak najbliższego odpowiadającego mu parkingu z przynajmniej jednym wolnym miejscem. Celem parkingu jest natomiast pozbycie się pustych miejsc, czyli jego zapełnienie.
 
-System zakłada współistnienie dwóch typów parkingów : płatnych  i bezpłatnych wyszukiwanych zgodnie z preferencjami kierowcy, jeśli jest to aktualnie możliwe. Można założyć że parkingi płatne powstaną w centach miast, ale przez konieczność uiszczenia opłaty ich obłożenie będzie równoważne z parkingami darmowymi, znajdującymi się w mniej dogodnych miejscach.
+Każde miejsce parkingowe powinno zostać wyposażone w czujniki ultradźwiękowe wykrywające zajętość miejsca oraz kamerę identyfikującą konkretny pojazd. W przypadku zwolnienia miejsca powinna podnosić się blokada uniemożliwiająca wjazd niezgłoszonemu na dany parking samochodowi. Każdy parking agreguje konkretną liczbę miejsc postojowych na przykład na odcinku konkretnej ulicy i posiada informacje o ich zajętości. Każde miejsce parkingowe po zwolnieniu wysyła adekwatną informację do parkingu, do którego przynależy, dzięki czemu może on zgłosić chęć przyjęcia następnego kierowcy. Gdy kierowca zadeklaruje chęć zaparkowania, po czym jest nawigowany do określonego parkingu, powoduje to zwiększenie się jego zajętości. Parking oczekuje na kierowcę przez pewien ustalony czas, nie przyjmując kolejnych deklarujących chęć pojazdów, jeżeli nie ma w swoim obrębie wolnych miejsc. Dzięki takiemu rozwiązaniu mamy pewność, że po dojechaniu na parking znajdziemy puste miejsce. Gdy kierowca podjedzie do miejsca na przydzielonym parkingu i zostanie poprawnie zidentyfikowany przez kamerę poprzez numer rejestracyjny, blokada opuszcza się, kierowca parkuje na miejscu postojowym, a miejsce informuje parking o jego prawidłowym zajęciu, zwiększając zajętość jego aż do chwili opuszczenia miejsca przez pojazd. Przydzielony parking docelowo powinien być oznaczony np. przy wykorzystaniu Open Street Map jako region do którego prowadzony jest kierowca. 
 
 \noindent Podczas korzystania z aplikacji można wydzielić kilka  typowych scenariuszy:
 
-
 \noindent Scenariusz 1 - główny - wyszukanie miejsca parkingowego: \\
-\hspace*{1cm} 1. Użytkownik deklaruje w aplikacji chęć znalezienia miejsca parkingowego. \\
-\hspace*{1cm} 2. Użytkownik wybiera typ parkingu (płatny/bezpłatny). \\
-\hspace*{1cm} 3. System wyszukuje parking z przynajmniej jednym wolnym miejscem w okolicy użytkownika komunikując się z pobliskimi parkingami. \\
-\hspace*{1cm} 4. System proponuje parking, które użytkownik może zaakceptować. \\
-\hspace*{1cm} 5. Użytkownik wybiera w aplikacji zasugerowane przez system parking. \\
-\hspace*{1cm} 6. System nawiguje kierowcę do parkingu. \\
-\hspace*{1cm} 7. kierowca stawia się na dowolnym miejscu parkingowym w obrębie parkingu \\
+\hspace*{1cm} 1. Użytkownik deklaruje w aplikacji chęć znalezienia miejsca parkingowego.  \\
+\hspace*{1cm} 2. System wyszukuje parkingi z przynajmniej jednym wolnym miejscem w okolicy użytkownika komunikując się z pobliskimi parkingami. \\
+\hspace*{1cm} 3. System proponuje parkingi, które użytkownik może zaakceptować.  \\
+\hspace*{1cm} 4. Użytkownik wybiera w aplikacji jeden proponowanych przez system parking. \\
+\hspace*{1cm} 5. System nawiguje kierowcę do parkingu. \\
+\hspace*{1cm} 6. Kierowca stawia się na dowolnym miejscu parkingowym w obrębie parkingu \\
 
-\noindent Scenariusz 2 - alternatywny do scenariusza 1 - wybór innego typu parkingu: \\
-\hspace*{1cm} 1-3. Jak w scenariuszu głównym. \\
-\hspace*{1cm} 4. Aplikacja wyświetla komunikat o braku wolnych miejsc parkingowych na preferowanym typie parkingu oraz propozycję najbliższego wolnego parkingu o innym typie.  \\
-\hspace*{1cm} 5. Użytkownik wybiera w aplikacji zasugerowany przez system inny parking. \\
-\hspace*{1cm} 6. System nawiguje kierowcę do parkingu. \\
-\hspace*{1cm} 7. Kierowca stawia się na dowolnym miejscu parkingowym w obrębie parkingu \\
-
+\noindent Scenariusz 2 - użytkownik oddala się od parkingu \\
+\hspace*{1cm} 1-5. Jak w scenariuszu głównym \\
+\hspace*{1cm} 6. Kierowca nie kieruje się na parking (jego pozycja oddala się). \\
+\hspace*{1cm} 7.Parking sprawdza czy proces postępuje \\
+\hspace*{1cm} 8.Kierowca nadal się oddala  \\
+\hspace*{1cm} 9. Parking dokonuje zwolnienia miejsca parkingowego \\
 
 \noindent Scenariusz 3 - alternatywny do scenariusza 1 - użytkownik odrzuca proponowane parking \\
 \hspace*{1cm} 1-4. 	Jak w scenariuszu 2 \\
-\hspace*{1cm} 5.	Użytkownik nie wybiera zasugerowanego przez system parkingu. \\
+\hspace*{1cm} 5.	Użytkownik nie wybiera zasugerowanego przez system parkingu \\
 \hspace*{1cm} 6. Kierowca oddala się o pewną odległość \\
-\hspace*{1cm} 7. Powrót do punktu 1  scenariusza głównego.. \\
+\hspace*{1cm} 7. Powrót do punktu 1  scenariusza głównego \\
 
+\noindent Scenariusz 4 - użytkownik rezygnuje z rezerwacji \\
+\hspace*{1cm} 1-5. Jak w scenariuszu głównym \\
+\hspace*{1cm} 6. Kierowca rezygnuje z miejsca parkingowego \\
+\hspace*{1cm} 7. Parking dokonuje zwolnienia miejsca parkingowego \\
 
-\noindent Scenariusz 4 - brak wolnych miejsc parkingowych \\
+\noindent Scenariusz 5 - brak wolnych miejsc parkingowych \\
 \hspace*{1cm} 1-3. 	Jak w scenariuszu głównym \\
 \hspace*{1cm} 4.	Aplikacja wyświetla komunikat o braku wolnych miejsc parkingowych na każdym typie parkingu. \\
 \hspace*{1cm} 5. Kierowca oddala się o pewną odległość \\
