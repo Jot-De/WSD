@@ -472,7 +472,13 @@ Na podstawie powyższych schematów (\ref{fig:agentmodel}) modeli agentów możn
     \caption{Model usług.}
     \begin{tabular} {| m{2cm} | m{2cm} | m{3cm} | m{3cm} | m{4cm} |} \hline
         Usługa   & Wejścia & Wyjścia & Warunki wstępne & Warunki końcowe \\ \hline
-        Tworzenie listy parkingów & - & parking\_list & true & parking\_list =/= NULL \\ \hline
+        Tworzenie listy lokalizacji istniejących parkingów & - & parking\_list & true & parking\_list =/= NULL \\ \hline
+        Tworzenie listy proponowanych parkingów z wolnymi miejscami w okolicy & car\_location & selected\_\-parking\_list & parking\_list =/= NULL, car\_location =/= NULL & length(sort(selected\_\-parking\_list)) == length(distance(car\_\-location, 
+        
+        parking\_location) > set\_distance) and length(sort(selected\_\-parking\_list)) <=5
+
+        (wybór  do 5 najbliższych parkingów  z okolicy lub mniej  jeśli ich liczba< 5)
+         \\ \hline
         Znalezienie wolnego miejsca & car\_location & reservation\_info & parking\_list =/= NULL & reservation\_info =/= NULL \\ \hline
         Śledzenie położenia samochodu & car\_location reservation\_info & ApproacherIsNot\-Coming & reservation\_info =/= NULL & ApproacherIsNot\-Coming = True OR IsApproacher = False \\ \hline
         Odwoływanie zarezerwowanego miejsca & reserva\-tion\_info & Approacher\-Cancelled\-Reservation & reservation\_info =/= NULL & ApproacherCancelled\-Reservetation = True \\ \hline
