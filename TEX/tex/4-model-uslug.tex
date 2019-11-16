@@ -15,7 +15,7 @@
 \begin{itemize}
     \item mapuje istniejące parkingi
 \end{itemize}
-\item Parking Approacher
+\item Approacher
 \begin{itemize}
     \item zbliża się do parkingu i wysyła komunikat z aktualną lokalizacją
 \item może zrezygnować
@@ -93,7 +93,7 @@ MAPPARKINGS = SendCoordinates
 
 Aktywności:
 \begin{itemize}
-    \item ShouldMaintainReservation - podejmowanie decyzji o utrzymaniu rezerwacji (gdy Approacher się oddala/nie pojawia, podniesienie flagi ApproacherIsNotComing)
+    \item ShouldMaintainReservation - podejmowanie decyzji o utrzymaniu rezerwacji (jeśli Approacher się oddala/nie pojawia, podniesienie flagi ApproacherIsNotComing)
 \end{itemize}
 
 Protokoły:
@@ -178,7 +178,7 @@ Protokoły:
 
         Safety:
 
-        \hspace{5mm} adsa                                                                                                                                     \\ \hline
+        \hspace{5mm} true                                                                                                                \\ \hline
     \end{tabular}
 \end{table}
 
@@ -229,7 +229,10 @@ Protokoły:
 \newpage
 \subsubsection{Approacher}
 
-Aktywności: brak
+Aktywności: 
+\begin{itemize}
+    \item ShouldParkingApproaching - podejmowanie decyzji czy chce zmierzać do parkingu i ewentualna jazda w jego stronę
+\end{itemize}
 
 Protokoły:
 \begin{itemize}
@@ -282,7 +285,7 @@ Na rysunku \ref{fig:interaction} przedstawiającym model interakcji widać, że 
 
 \begin{figure}[h!]
     \centering \includegraphics[width=1.0\linewidth]{interaction.png}
-    \caption{Schemat interakcji.}
+    \caption{Model interakcji.}
     \label{fig:interaction}
 \end{figure}
 
@@ -299,7 +302,7 @@ Na rysunku \ref{fig:interaction} przedstawiającym model interakcji widać, że 
     \label{fig:agentmodel}
 \end{figure}
 
-Na podstawie powyższych schematów (\ref{fig:agentmodel}) modeli agentów można stwierdzić, że oba rodzaje agentów  występujących w systemie są złożone w kontekście zaimplementowanych w nich ról. ParkingAgent posiada nieco większe skomplikowanie z uwagi na bardziej odpowiedzialną rolę jaką pełni w systemie, ponieważ to agenty-parkingi zarządzają agentami-pojazdami jednocześnie spełniając ich prośby. System nie może istnieć bez żadnej instancji ParkingAgent, ponieważ CarAgent w roli klienta nie mógłby wchodzić w interakcje i w rezultacie zaparkować. Natomiast można wyobrazić sobie istnienie systemu z instancjami ParkingAgent’a bez drugiego rodzaju agentów występujących w systemie.
+Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów można stwierdzić, że oba rodzaje agentów  występujących w systemie są złożone w kontekście zaimplementowanych w nich ról. ParkingAgent posiada nieco większe skomplikowanie z uwagi na bardziej odpowiedzialną rolę jaką pełni w systemie, ponieważ to agenty-parkingi zarządzają agentami-pojazdami jednocześnie spełniając ich prośby. System nie może istnieć bez żadnej instancji ParkingAgent, ponieważ CarAgent w roli klienta nie mógłby wchodzić w interakcje i w rezultacie zaparkować. Natomiast można wyobrazić sobie istnienie systemu z instancjami ParkingAgent’a bez drugiego rodzaju agentów występujących w systemie.
 
 \newpage
 \subsubsection{Map Parkings}
@@ -312,7 +315,7 @@ Na podstawie powyższych schematów (\ref{fig:agentmodel}) modeli agentów możn
             \cline{1-2}
             \multicolumn{2}{|p{8cm}|}{UpdateParkingsCordinates (INFORM REF)} &  & \\ \cline{1-2}
             \textbf{ParkingMapper} & \textbf{ParkingManager} & \hspace{5mm}  & \\ \cline{1-3}
-            \multicolumn{2}{|p{8cm}|}{Wysyła zapytania do wszystkich parkingów i uaktualnia ich położenie z prośbą o informacje o ich lokalizacji} & \hspace{5mm}  &  \\ \cline{1-3}
+            \multicolumn{2}{|p{8cm}|}{Wysyła zapytania do wszystkich parkingów z prośbą o informacje o ich lokalizacji i uaktualnia ich położenie } & \hspace{5mm}  &  \\ \cline{1-3}
             \end{tabular}
     };
     \node[yshift=-2cm] (b) at (a.south) 
@@ -479,7 +482,7 @@ Na podstawie powyższych schematów (\ref{fig:agentmodel}) modeli agentów możn
 
         (wybór  do 5 najbliższych parkingów  z okolicy lub mniej  jeśli ich liczba< 5)
          \\ \hline
-        Znalezienie wolnego miejsca & car\_location & reservation\_info & parking\_list =/= NULL & reservation\_info =/= NULL \\ \hline
+        Znalezienie wolnego miejsca & selected\_\-parking\_list & reservation\_info & parking\_list =/= NULL & reservation\_info =/= NULL \\ \hline
         Śledzenie położenia samochodu & car\_location reservation\_info & ApproacherIsNot\-Coming & reservation\_info =/= NULL & ApproacherIsNot\-Coming = True OR IsApproacher = False \\ \hline
         Odwoływanie zarezerwowanego miejsca & reserva\-tion\_info & Approacher\-Cancelled\-Reservation & reservation\_info =/= NULL & ApproacherCancelled\-Reservetation = True \\ \hline
     \end{tabular}
@@ -497,4 +500,4 @@ Na podstawie powyższych schematów (\ref{fig:agentmodel}) modeli agentów możn
     \label{fig:friends}
 \end{figure}
 
-Model znajomości agentów w systemie (Rys. \ref{fig:friends}) jest nieskomplikowany z uwagi na małą liczbę agentów w nim występujących. Wszystkie rodzaje agentów komunikują się między sobą. Nadmienić należy że architektura systemu została zaprojektowana w ten sposób, że nie wymaga komunikacji pomiędzy różnymi instancjami tego samego rodzaju agenta. W ParkingAgent następuje komunikacja pomiędzy rolami, w które wciela się ta sama instancja tego rodzaju genta.
+Model znajomości agentów w systemie (Rys. \ref{fig:friends}) jest nieskomplikowany z uwagi na małą liczbę agentów w nim występujących. Wszystkie rodzaje agentów komunikują się między sobą. Nadmienić należy że architektura systemu została zaprojektowana w ten sposób, że nie wymaga komunikacji pomiędzy różnymi instancjami tego samego rodzaju agenta. W przypadku agenta ParkingAgent następuje komunikacja pomiędzy rolami, w które wciela się ta sama instancja tego rodzaju genta.
