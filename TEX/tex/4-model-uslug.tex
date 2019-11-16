@@ -98,9 +98,11 @@ Aktywności:
 
 Protokoły:
 \begin{itemize}
-    \item TrackCarWithReservation 
+    \item TrackCar
+    \item TrackReservation 
     \item ReservationCancellation
     \item FreePlace 
+    
 \end{itemize}
 
 
@@ -117,7 +119,7 @@ Protokoły:
         
         \ul{ShouldMaintainReservation}, 
         
-        TrackCarWithReservation(SubscribeForClientLocation), ReservationCancelation(ConfirmCancellation), FreePlace(RequestSetPlaceFree) \\ \hline
+        TrackReservation(ConfirmReservationInfo) TrackCar(SubscribeForClientLocation), ReservationCancellation(ConfirmCancellation), FreePlace(RequestSetPlaceFree) \\ \hline
         Permissions:
 
         reads: approacher\_info, car\_location,  reservation\_cancellation, IsApproacher
@@ -125,13 +127,18 @@ Protokoły:
         generates:  ApproacherIsNotComing, ApproacherCancelledReservation                                                                                   \\ \hline
         Responsibilities:
 
-        Liveness: AR TRACKER = TrackCarWithReservation.[ReservationCancellation]. FreePlace
+        Liveness: 
+        
+        CAR TRACKER = TrackReservation. TrackCar. [ReservationCancellation]. FreePlace
 
-        TRACKCARWITHRESERVATION = SubscribeForClientLocation.ShouldMaintainReservation
+        TRACKRESERVATION = ConfirmReservationInfo
+
+        TRACKCAR = SubscribeForClientLocation. \ul{ShouldMaintainReservation}
 
         RESERVATIONCANCELLATION = ConfirmCancellation
 
-        FREEPLACE = RequestSetPlaceFree        
+        FREEPLACE = RequestSetPlaceFree
+
 
         Safety: IsApproacher = True \\ \hline
     \end{tabular}
@@ -172,13 +179,14 @@ Protokoły:
         generates:  parking\_list                                                                                 \\ \hline
         Responsibilities:
 
-        Liveness: PARKINGMAPPER = (RunUpdate.MapParking.ComputeParkingList)
+        Liveness: 
+        
+        PARKINGMAPPER = (RunUpdate.MapParking.ComputeParkingList)
+
         MAPPARKING = UpdateParkingsCooridnates 
         
 
-        Safety:
-
-        \hspace{5mm} true                                                                                                                \\ \hline
+        Safety: true                                                                                                                \\ \hline
     \end{tabular}
 \end{table}
 
@@ -188,13 +196,14 @@ Protokoły:
 Aktywności:
 \begin{itemize}
     \item GetMyLocation - lokalizuje się
-    \item ComputeParkingList - wybiera kilka parkingów z wolnymi miejscami w najbliższej
+    \item ComputeParkingList - wybiera kilka parkingów w najbliższej odległości z wolnymi miejscami postojowymi, z którymi będzie się komunikować
 
 \end{itemize}
 
 Protokoły:
 \begin{itemize}
     \item PlaceReservation
+    \item TrackReservation
 \end{itemize}
 
 
@@ -211,7 +220,7 @@ Protokoły:
         \end{itemize} \\ \hline
         Protocols and Activities: 
         
-        \ul{GetMyLocation}, PlaceReservation(CallForParkingOffers, AcceptParkingOffer) \\ \hline
+        \ul{GetMyLocation}, PlaceReservation(CallForParkingOffers, AcceptParkingOffer), TrackReservation() \\ \hline
         Permissions:
 
         reads: parking\_list
@@ -219,7 +228,9 @@ Protokoły:
         generates:  IsApproacher, car\_location, selected\_parking\_list \\ \hline
         Responsibilities:
 
-        Liveness: Client = (GetMyLocation.CallForParkingOffers.[AcceptParkingOffer])*
+        Liveness: 
+        
+        Client = (GetMyLocation.CallForParkingOffers.[AcceptParkingOffer])*
 
 
         Safety: isApproacher = false \\ \hline
@@ -236,7 +247,7 @@ Aktywności:
 
 Protokoły:
 \begin{itemize}
-    \item TrackCarWithReservation
+    \item TrackCar
     \item Reservation Cancellation
     \item FreePlace
 \end{itemize}
@@ -255,7 +266,7 @@ Protokoły:
         \end{itemize} \\ \hline
         Protocols and Activities: 
         
-        TrackCarWithReservation(SendReservationInfo, SendApproacherLocation), Reservation Cancellation(CancelClientReservation) \\ \hline
+        TrackCar(SendApproacherLocation), Reservation Cancellation(CancelClientReservation) \\ \hline
         Permissions:
 
         reads: IsApproacher
@@ -265,11 +276,12 @@ Protokoły:
 
         Liveness: 
         
-        APPROACHER = TrackCarWithReservation.[ReservationCancellation]
-
-        TRACKCARWITHRESERVATION = SendReservationInfo.(SendApproacherLocation)
+        APPROACHER = TrackCar. [ReservationCancellation]
+        
+        TRACKCAR = SendReservationInfo. (SendApproacherLocation)
 
         RESERVATIONCANCELLATION = CancelClientReservation
+
         
 
         Safety: isApproacher = true \\ \hline
@@ -313,7 +325,7 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
     {
         \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
             \cline{1-2}
-            \multicolumn{2}{|p{8cm}|}{UpdateParkingsCordinates (INFORM REF)} &  & \\ \cline{1-2}
+            \multicolumn{2}{|p{8cm}|}{UpdateParkingsCoordinates (INFORM REF)} &  & \\ \cline{1-2}
             \textbf{ParkingMapper} & \textbf{ParkingManager} & \hspace{5mm}  & \\ \cline{1-3}
             \multicolumn{2}{|p{8cm}|}{Wysyła zapytania do wszystkich parkingów z prośbą o informacje o ich lokalizacji i uaktualnia ich położenie } & \hspace{5mm}  &  \\ \cline{1-3}
             \end{tabular}
@@ -371,7 +383,7 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
 
 
 \newpage
-\subsubsection{TrackCarWithReservation}
+\subsubsection{TrackReservation}
 \begin{table}[h]
     \centering
     \begin{tikzpicture}
@@ -380,7 +392,7 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
         \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
             \cline{1-2}
             \multicolumn{2}{|p{8cm}|}{SendReservationInfo (INFORM)} &  & \\ \cline{1-2}
-            \textbf{Approacher} & \textbf{CarTracker} & \hspace{5mm}  & parking\_list \\ \cline{1-3}
+            \textbf{Client} & \textbf{CarTracker} & \hspace{5mm}  &  \\ \cline{1-3}
             \multicolumn{2}{|p{8cm}|}{przekazuje dane rezerwacji do Car Trackera po akceptowaniu wskazanego miejsce} & \hspace{5mm}  &  \\ \cline{1-3}
             \end{tabular}
     };
@@ -388,22 +400,39 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
     {
         \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
             \cline{1-2}
+            \multicolumn{2}{|p{8cm}|}{ConfirmReservationInfo (Confirm)} &  & \\ \cline{1-2}
+            \textbf{Car Tracker} & \textbf{Client} & \hspace{5mm}  &  \\ \cline{1-3}
+            \multicolumn{2}{|p{8cm}|}{potwierdza otrzymanie informacji o rezerwacji} & \hspace{5mm}  &  \\ \cline{1-3}
+            \end{tabular}
+    };
+    \draw[->,ultra thick](a)--(b);
+    \end{tikzpicture}
+    \label{my-label}
+    \end{table}
+
+\subsubsection{TrackCar}
+\begin{table}[h]
+    \centering
+    \begin{tikzpicture}
+    \node (a) at (0,0)
+    {
+        \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
+            \cline{1-2}
             \multicolumn{2}{|p{8cm}|}{SubscribeForClientLocation (Subscribe)} &  & \\ \cline{1-2}
-            \textbf{CarTracker} & \textbf{Approacher} & \hspace{5mm}  &  \\ \cline{1-3}
+            \textbf{CarTracker} & \textbf{Approacher} & \hspace{5mm}  & \\ \cline{1-3}
             \multicolumn{2}{|p{8cm}|}{prosi Approachera o cykliczne wysyłanie swojej lokalizacji} & \hspace{5mm}  &  \\ \cline{1-3}
             \end{tabular}
     };
-    \node[yshift=-2cm] (c) at (b.south) 
+    \node[yshift=-2cm] (b) at (a.south) 
     {
         \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
             \cline{1-2}
             \multicolumn{2}{|p{8cm}|}{SendApproacherLocation (inform)} &  & \\ \cline{1-2}
             \textbf{Approacher} & \textbf{CarTracker} & \hspace{5mm}  &  \\ \cline{1-3}
-            \multicolumn{2}{|p{8cm}|}{wysyła cyklicznie dane o swojej lokalizacji do Car Trackera} & \hspace{5mm}  & ApproacherIsNotComing \\ \cline{1-3}
+            \multicolumn{2}{|p{8cm}|}{wysyła cyklicznie dane o swojej lokalizacji do Car Trackera} & \hspace{5mm}  & \\ \cline{1-3}
             \end{tabular}
     };
     \draw[->,ultra thick](a)--(b);
-    \draw[->,ultra thick](b)--(c);
     \end{tikzpicture}
     \label{my-label}
     \end{table}
@@ -417,7 +446,7 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
         \begin{tabular}{|p{4cm}|p{4cm}|p{1cm}p{4cm}}
             \cline{1-2}
             \multicolumn{2}{|p{8cm}|}{CancelClientReservation (CANCEL)} &  & \\ \cline{1-2}
-            \textbf{Approacher} & \textbf{CarTracker} & \hspace{5mm}  & parking\_list \\ \cline{1-3}
+            \textbf{Approacher} & \textbf{CarTracker} & \hspace{5mm}  & \\ \cline{1-3}
             \multicolumn{2}{|p{8cm}|}{wysyła informacje o rezygnacji z miejsca parkingowego } & \hspace{5mm}  & AproacherCancelledReservation \\ \cline{1-3}
             \end{tabular}
     };
@@ -484,7 +513,7 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
          \\ \hline
         Znalezienie wolnego miejsca & selected\_\-parking\_list & reservation\_info & parking\_list =/= NULL & reservation\_info =/= NULL \\ \hline
         Śledzenie położenia samochodu & car\_location reservation\_info & ApproacherIsNot\-Coming & reservation\_info =/= NULL & ApproacherIsNot\-Coming = True OR IsApproacher = False \\ \hline
-        Odwoływanie zarezerwowanego miejsca & reserva\-tion\_info & Approacher\-Cancelled\-Reservation & reservation\_info =/= NULL & ApproacherCancelled\-Reservetation = True \\ \hline
+        Odwoły\-wanie zarezerwowanego miejsca & reserva\-tion\_info & Approacher\-Cancelled\-Reservation & reservation\_info =/= NULL & ApproacherCancelled\-Reservetation = True \\ \hline
     \end{tabular}
 \end{table}
 
@@ -500,4 +529,4 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
     \label{fig:friends}
 \end{figure}
 
-Model znajomości agentów w systemie (Rys. \ref{fig:friends}) jest nieskomplikowany z uwagi na małą liczbę agentów w nim występujących. Wszystkie rodzaje agentów komunikują się między sobą. Nadmienić należy że architektura systemu została zaprojektowana w ten sposób, że nie wymaga komunikacji pomiędzy różnymi instancjami tego samego rodzaju agenta. W przypadku agenta ParkingAgent następuje komunikacja pomiędzy rolami, w które wciela się ta sama instancja tego rodzaju genta.
+Model znajomości agentów w systemie (Rys. \ref{fig:friends}) jest nieskomplikowany z uwagi na małą liczbę agentów w nim występujących. Wszystkie rodzaje agentów komunikują się między sobą. Nadmienić należy że architektura systemu została zaprojektowana w ten sposób, że nie wymaga komunikacji pomiędzy różnymi instancjami tego samego rodzaju agenta. W przypadku agenta ParkingAgent następuje komunikacja pomiędzy rolami, w które wciela się ta sama instancja tego rodzaju agenta.
