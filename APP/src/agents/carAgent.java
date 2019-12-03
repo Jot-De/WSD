@@ -1,4 +1,5 @@
 package agents;
+import jade.core.Agent;
 
-public class carAgent {
+public class carAgent extends Agent{
 }
