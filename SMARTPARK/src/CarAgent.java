@@ -24,6 +24,12 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
+//        addBehaviour(new TickerBehaviour(this, 5000) {
+//            @Override
+//            protected void onTick() {
+//                myAgent.addBehaviour(new updateListOfParkings());
+//            }
+//        });
         addBehaviour(new updateListOfParkings());
     }
 
@@ -45,43 +51,51 @@ public class CarAgent extends Agent {
         public void action() {
             switch (step) {
                 case 0:
-                    System.out.println("HALO WYSYŁAM WIADOMOŚĆ!");
                     ACLMessage msg = new ACLMessage(ACLMessage.INFORM_REF);
 
                     for (AID parkingAgent : parkingAgents) msg.addReceiver(parkingAgent);
 
                     msg.setConversationId("update-location");
                     msg.setReplyWith("inform_ref" + System.currentTimeMillis()); // Unique value
+                    myAgent.send(msg);
 
                     // Prepare the template to get replies.
                     mt = MessageTemplate.and(MessageTemplate.MatchConversationId("update-location"),
                             MessageTemplate.MatchInReplyTo(msg.getReplyWith()));
                     step = 1;
+                    System.out.println("Sent INFORM_REF to parking agents. Waiting for replies...");
                     break;
                 case 1:
                     // Receive all locations from parking agents.
                     ACLMessage reply = myAgent.receive(mt);
                     if (reply != null) {
                         // Reply received
-                        if (reply.getPerformative() == ACLMessage.INFORM_REF) {
+                        if (reply.getPerformative() == ACLMessage.INFORM) {
                             AID sender = reply.getSender();
                             String location = reply.getContent();
                             parkingAgentLocations.put(sender, location);
                         }
                         repliesCnt++;
                         if (repliesCnt >= parkingAgents.length) {
-                            // We received all replies
-                            break;
+                            // We received all replies so print locations.
+                            System.out.println("Received locations from all parking agents.");
+                            for (AID parkingAgent : parkingAgents) {
+                                System.out.println("Location: " + parkingAgentLocations.get(parkingAgent));
+                            }
+                            step = 2;
                         }
                     } else {
+                        // This method marks the behaviour as "blocked" so that agent does not
+                        // schedule if for execution anymore.
+                        // When a new message is inserted in the queue behaviour will automatically unblock itself.
                         block();
                     }
                     break;
             }
         }
 
-        public boolean done() { // call when done behaviour | obligatory
-            return true;
+        public boolean done() { // if we return true this behaviour will end its cycle
+            return step == 2;
         }
     }
 }
