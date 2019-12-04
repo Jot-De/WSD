@@ -2,43 +2,80 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
-/* car agent class */
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * car agent class
+ */
 public class CarAgent extends Agent {
 
-    // sekcja mockowych  agentów xd
-    private AID[] parkingAgents = {new AID("parking1", AID.ISLOCALNAME),    //list of parking agent list
-            new AID("parking2", AID.ISLOCALNAME)};
-    // sekcja mockowych  agentów xd
+    private Map<AID, String> parkingAgentLocations = new HashMap<AID, String>();
 
-    @Override
-    protected void setup() {  //call when create the agent
-        System.out.println("hello " + getAID().getName() + " is ready");
+    // List of other agents in the container.
+    private AID[] parkingAgents = {
+            new AID("parking1", AID.ISLOCALNAME),
+            new AID("parking2", AID.ISLOCALNAME)
+    };
 
-        addBehaviour(new ExampleBehaviour());  // example behaviour implement protocol(inf- ref protocol
+    protected void setup() {
+        // Print a welcome message.
+        System.out.println("Hello " + getAID().getName() + " is ready.");
+
+        addBehaviour(new updateListOfParkings());
     }
 
-    @Override
-    protected void takeDown() { //method call when agent is killed ps. jakie standardy komentarzy w javie? nk poprawi
-        System.out.println("car is killed / outside the city");
-
+    protected void takeDown() {
+        System.out.println("Car-agent " + getAID().getName() + " terminating.");
     }
-    /* zachowanie definiujace protokol mappera | inner class*/
-    private class ExampleBehaviour extends Behaviour {
 
+    /**
+     * Get and cache locations of parking agents.
+     * Part of MapParking Protocol.
+     * TODO: Move this class to a separate file/package.
+     */
+    private class updateListOfParkings extends Behaviour {
+
+        private MessageTemplate mt; // The template to receive replies
+        private int repliesCnt = 0;
         private int step = 0;
 
-        public void action() { //action in protocol |obligatory
+        public void action() {
             switch (step) {
                 case 0:
-                    ACLMessage m_ir = new ACLMessage(ACLMessage.INFORM_REF); // call parking agent for coordinates
-                    for (int i = 0; i < parkingAgents.length; ++i) // al parking agents loop
-                        m_ir.addReceiver(parkingAgents[i]); //ad every agent as reciever
-                    step++;
+                    System.out.println("HALO WYSYŁAM WIADOMOŚĆ!");
+                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM_REF);
+
+                    for (AID parkingAgent : parkingAgents) msg.addReceiver(parkingAgent);
+
+                    msg.setConversationId("update-location");
+                    msg.setReplyWith("inform_ref" + System.currentTimeMillis()); // Unique value
+
+                    // Prepare the template to get replies.
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("update-location"),
+                            MessageTemplate.MatchInReplyTo(msg.getReplyWith()));
+                    step = 1;
                     break;
                 case 1:
-                    // czy to jest potrzebne / co tu bedzie
-                    step++;
+                    // Receive all locations from parking agents.
+                    ACLMessage reply = myAgent.receive(mt);
+                    if (reply != null) {
+                        // Reply received
+                        if (reply.getPerformative() == ACLMessage.INFORM_REF) {
+                            AID sender = reply.getSender();
+                            String location = reply.getContent();
+                            parkingAgentLocations.put(sender, location);
+                        }
+                        repliesCnt++;
+                        if (repliesCnt >= parkingAgents.length) {
+                            // We received all replies
+                            break;
+                        }
+                    } else {
+                        block();
+                    }
                     break;
             }
         }
