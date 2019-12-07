@@ -34,6 +34,7 @@ io.on("connection", () => {
  * Endpoint that let agents update its state.
  */
 app.post("/update-agent", (req, res) => {
+  console.log(req.body);
   const { name, type, location } = req.body;
   currentState[name] = { type, location };
 

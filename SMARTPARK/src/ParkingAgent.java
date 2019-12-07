@@ -3,9 +3,11 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import static utils.agentUtils.getRandomLocation;
+import static utils.agentUtils.sendData;
 
 public class ParkingAgent extends Agent {
 
@@ -16,6 +18,13 @@ public class ParkingAgent extends Agent {
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
         location = getRandomLocation();
+
+        // Send position to the middleware server.
+        try {
+            sendData(getAID().getName(), "parking", Arrays.toString(location));
+        } catch (Exception e) {
+            System.out.println("ERROR");
+        }
 
         addBehaviour(new SendCoordinates());
     }
