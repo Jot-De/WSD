@@ -1,6 +1,13 @@
+.row {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
 .grid {
   margin: auto;
   text-align: center;
-  width: 50%;
-  /* background: red; */
+  display: table;
+  margin-top: 5vh;
 }
