@@ -1,0 +1,14 @@
+.tile {
+  width: 50px;
+  height: 50px;
+  outline: 1px solid rgb(175, 216, 248);
+  display: inline-block;
+}
+
+.parking {
+  background: red;
+}
+
+.car {
+  background: blue;
+}
