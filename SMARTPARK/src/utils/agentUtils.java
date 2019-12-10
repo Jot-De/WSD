@@ -37,4 +37,15 @@ public class agentUtils {
             }
         }
     }
+
+    /**
+     * Remove parking location on take down.
+     */
+    public static void freeParkingLocation(int[] location) {
+        for (int i = 0; i < createdLocations.size(); i++) {
+            if (location[0] == createdLocations.get(i)[0] && location[1] == createdLocations.get(i)[1]) {
+                createdLocations.remove(i);
+            }
+        }
+    }
 }

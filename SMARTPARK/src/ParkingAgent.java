@@ -6,6 +6,7 @@ import jade.lang.acl.MessageTemplate;
 import java.util.Arrays;
 
 import static utils.agentUtils.initializeParkingLocation;
+import static utils.agentUtils.freeParkingLocation;
 
 public class ParkingAgent extends Agent {
 
@@ -21,6 +22,7 @@ public class ParkingAgent extends Agent {
     }
 
     protected void takeDown() {
+        freeParkingLocation(location);
         System.out.println("Parking-agent " + getAID().getName() + " terminating.");
     }
 
