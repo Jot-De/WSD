@@ -3,21 +3,25 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.Arrays;
+import java.util.*;
 
 import static utils.agentUtils.getRandomLocation;
 
 public class ParkingAgent extends Agent {
 
     private int[] location;
+    private boolean isFree;
+    Random rand = new Random(); // creating Random object
 
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
         location = getRandomLocation();
+        isFree = rand.nextBoolean();
 
         addBehaviour(new SendCoordinates());
+        addBehaviour(new SendAvailablePlaceInfo());
     }
 
     protected void takeDown() {
@@ -54,5 +58,29 @@ public class ParkingAgent extends Agent {
             }
         }
 
+    }
+    private class SendAvailablePlaceInfo extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+                //Message received. Process it
+                String conversationID = msg.getConversationId();
+
+                //Return early if conversation id is not set to offer-place.
+                if (!conversationID.equals("offer-place")) return;
+
+                ACLMessage reply = msg.createReply();
+
+                reply.setPerformative(ACLMessage.PROPOSE);
+                reply.setContent(Boolean.toString(isFree));
+
+                myAgent.send(reply);
+                System.out.println("Sent reply with information about availability");
+            }
+            else{
+                block();
+            }
+        }
     }
 }
