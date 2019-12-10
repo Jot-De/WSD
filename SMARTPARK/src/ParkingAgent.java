@@ -5,7 +5,7 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.Arrays;
 
-import static utils.agentUtils.getRandomLocation;
+import static utils.agentUtils.initializeParkingLocation;
 
 public class ParkingAgent extends Agent {
 
@@ -15,7 +15,7 @@ public class ParkingAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
-        location = getRandomLocation();
+        location = initializeParkingLocation();
 
         addBehaviour(new SendCoordinates());
     }
