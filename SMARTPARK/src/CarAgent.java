@@ -31,7 +31,6 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
-
         addBehaviour(new updateListOfParkings());
         addBehaviour(new callForParkingOffers());
     }
