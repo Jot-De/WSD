@@ -23,13 +23,7 @@ public class CarAgent extends Agent {
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
-
-//        addBehaviour(new TickerBehaviour(this, 5000) {
-//            @Override
-//            protected void onTick() {
-//                myAgent.addBehaviour(new updateListOfParkings());
-//            }
-//        });
+        
         addBehaviour(new updateListOfParkings());
     }
 
