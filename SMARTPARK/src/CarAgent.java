@@ -1,13 +1,13 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * car agent class
@@ -16,10 +16,11 @@ public class CarAgent extends Agent {
 
     private Map<AID, String> parkingAgentLocations = new HashMap<AID, String>();
     private Map<AID, String> parkingAgentAvailability = new HashMap<AID, String>();
-    //
+    //Check if list of parkings has been updated.
     private boolean isParkingListUpdated = false;
-    //Agents location
-    private int[] location = {0, 0};
+    //Agent's location.
+    private int[] agentLocation = {0, 0};
+    private AID parkingTarget;
 
     // List of other agents in the container.
     private AID[] parkingAgents = {
@@ -101,90 +102,148 @@ public class CarAgent extends Agent {
             return step == 2;
         }
     }
-
+    /**
+     * Make a reservation for a parking space.
+     * Part of PlaceReservation Protocol.
+     * TODO: Move this class to a separate file/package.
+     */
     private class callForParkingOffers extends Behaviour {
-        private MessageTemplate mt;
+        private MessageTemplate mt; // The template to receive replies
         private int step = 0;
         private int repliesCnt = 0;
+        //Shortest path between car and parking.
+        private double shortestDistance;
+        private AID closestParking;
+        String isFree;
 
         public void action() {
             if (isParkingListUpdated) {
                 switch (step) {
                     case 0:
-                        //Send the cfp to all parking
+                        //Send the cfp to parking agents.
                         ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 
                         for (AID parkingAgent : parkingAgents) cfp.addReceiver(parkingAgent);
 
                         cfp.setConversationId("offer-place");
-                        cfp.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
+                        cfp.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value.
                         myAgent.send(cfp);
+                        System.out.println("Sent CFP to parking agents. Waiting for replies...");
 
-                        //Prepare the template to get proposals
+                        //Prepare the template to get proposals.
                         mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
                                 MessageTemplate.MatchInReplyTo(cfp.getReplyWith()));
                         step = 1;
-                        System.out.println("Sent CFP to parking agents. Waiting for replies...");
                         break;
                     case 1:
-                        //Receive all proposals/refusals from parking agents
+                        //Receive info about availability of parking spaces.
                         ACLMessage reply = myAgent.receive(mt);
 
                         if (reply != null) {
-                            //Reply received
+                            //Reply received.
                             if (reply.getPerformative() == ACLMessage.PROPOSE) {
                                 AID sender = reply.getSender();
-                                String isFree = reply.getContent();
+                                isFree = reply.getContent();
                                 parkingAgentAvailability.put(sender, isFree);
-                                repliesCnt++;
+
+                                if (Boolean.parseBoolean(isFree)) {
+                                    //Change type of location from String to Array.
+                                    String arr = parkingAgentLocations.get(sender);
+                                    String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+                                    int[] results = new int[items.length];
+                                    //Create an Array.
+                                    for (int i = 0; i < items.length; i++) {
+                                        try {
+                                            results[i] = Integer.parseInt(items[i]);
+                                        } catch (NumberFormatException nfe) {
+                                            System.out.println("Error occurred");
+                                        }
+                                    }
+
+                                    //Calculate the distance between car and parking on 2D plane.
+                                    int x1 = agentLocation[0];
+                                    int y1 = agentLocation[1];
+                                    int x2 = results[0];
+                                    int y2 = results[1];
+                                    double distance = Math.hypot(x1 - x2, y1 - y2);
+
+                                    if (closestParking == null || distance < shortestDistance) {
+                                        //This is the best parking match for car agent.
+                                        shortestDistance = distance;
+                                        closestParking = reply.getSender();
+                                    }
+                                }
                             }
+                            repliesCnt++;
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {
-                                    System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " " + parkingAgentAvailability.get(parkingAgent));
+                                    if (Boolean.parseBoolean(parkingAgentAvailability.get(parkingAgent))) {
+                                        System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is available for reservation.");
+                                    } else {
+                                        System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is occupied.");
+                                    }
                                 }
-                                //All replies received
+                                if (shortestDistance != 0 ) {
+                                    System.out.println("Best Location: " + parkingAgentLocations.get(closestParking) + " and shortestDistance is " + shortestDistance);
+                                } else {
+                                    /**
+                                     * TODO: start again from step = 0
+                                     */
+//                                    step = 0;
+//                                    break;
+                                    System.out.println("there is no match");
+                                }
+                                //All replies received.
                                 System.out.println("Received place proposals from all parking agents.");
-
                                 step = 2;
                             }
                         } else {
+                            // This method marks the behaviour as "blocked" so that agent does not
+                            // schedule if for execution anymore.
+                            // When a new message is inserted in the queue behaviour will automatically unblock itself.
                             block();
                         }
                         break;
-//                case 2:
-//                    //Send the place reservation order to the parking that provided the best offer
-//                    ACLMessage reservation = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-//                    //reservation.addReceiver(bestParking);
-//                    //reservation.setContent();
-//                    reservation.setConversationId("offer-place");
-//                    reservation.setReplyWith("reservation"+System.currentTimeMillis());
-//                    myAgent.send(reservation);
-//                    //Prepare the template to get the purchase order reply
-//                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
-//                                            MessageTemplate.MatchInReplyTo(reservation.getReplyWith()));
-//                    step = 3;
-//                    break;
-//                case 3:
-//                    //Receive the place reservation order reply
-//                    reply = myAgent.receive(mt);
-//                    if (reply != null){
-//                        // place reservation order reply received
-//                        if (reply.getPerformative() == ACLMessage.INFORM){
-//                            // Reservation successful
-//                            System.out.println("Location of reserved place" );
-//                        }
-//                        step = 4;
-//                    }
-//                    else{
-//                        block();
-//                    }
-//                    break;
+                case 2:
+                    //Ask for reservation at the parking which provided the best offer.
+                    ACLMessage reservation = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+
+                    reservation.addReceiver(closestParking);
+                    reservation.setConversationId("offer-place");
+                    reservation.setReplyWith("reservation"+System.currentTimeMillis());
+                    myAgent.send(reservation);
+
+                    //Prepare the template to get the reply
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
+                                            MessageTemplate.MatchInReplyTo(reservation.getReplyWith()));
+                    step = 3;
+                    break;
+                case 3:
+
+                    reply = myAgent.receive(mt);
+                    if (reply != null){
+                        //Receive the place reservation order reply.
+                        if (reply.getPerformative() == ACLMessage.INFORM){
+                           // Reservation successful.
+                            parkingTarget = reply.getSender();
+                            System.out.println("Place reserved." );
+                        }
+                        else{
+                            //Reservation failed.
+                            System.out.println("Failure. Parking is occupied.");
+                        }
+                        step = 4;
+                    }
+                    else{
+                        block();
+                    }
+                    break;
                 }
             }
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
-            return step == 2;
+            return step == 4;
         }
     }
 }
