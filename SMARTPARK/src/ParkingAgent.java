@@ -28,6 +28,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new SendAvailablePlaceInfo());
         addBehaviour(new ConfirmReservation());
         addBehaviour(new getReservationInfo());
+        addBehaviour(new ConfirmCancellation());
     }
 
     protected void takeDown() {
@@ -66,6 +67,7 @@ public class ParkingAgent extends Agent {
         }
 
     }
+
     /**
      * Send information about availability to carAgent.
      */
@@ -87,17 +89,17 @@ public class ParkingAgent extends Agent {
 
                 myAgent.send(reply);
                 System.out.println("Sent reply with information about availability");
-            }
-            else{
+            } else {
                 block();
             }
         }
     }
+
     /**
      * Send information about reservation to carAgent.
      */
-    private class ConfirmReservation extends CyclicBehaviour{
-        public void action(){
+    private class ConfirmReservation extends CyclicBehaviour {
+        public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
@@ -109,17 +111,44 @@ public class ParkingAgent extends Agent {
 
                 ACLMessage reply = msg.createReply();
 
-                if(isFree){
+                if (isFree) {
                     reply.setPerformative(ACLMessage.INFORM);
-                } else{
+                    isFree = false;
+                } else {
                     //Send FAILURE if the place was booked faster by a different agent.
                     reply.setPerformative(ACLMessage.FAILURE);
                 }
 
                 myAgent.send(reply);
-                System.out.println(("Sent reply with information about reservation"));
+                System.out.println(("Sent reply with information about reservation."));
+            } else {
+                block();
             }
-            else{
+        }
+    }
+
+    /**
+     * Send confirmation about cancelling reservation to carAgent.
+     */
+    private class ConfirmCancellation extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CANCEL);
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+                //ACCEPT_PROPOSAL Message received. Process it
+                String conversationID = msg.getConversationId();
+
+                //Return early if conversation id is not set to offer-place.
+                if (!conversationID.equals("cancel-reservation")) return;
+
+                ACLMessage reply = msg.createReply();
+
+                reply.setPerformative(ACLMessage.CONFIRM);
+                isFree = true;
+
+                myAgent.send(reply);
+                System.out.println(("Send info about cancelling the reservation. This place is available for further customers"));
+            } else {
                 block();
             }
         }

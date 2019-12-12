@@ -15,9 +15,10 @@ import java.util.Map;
 public class CarAgent extends Agent {
 
     private Map<AID, String> parkingAgentLocations = new HashMap<AID, String>();
-    private Map<AID, String> parkingAgentAvailability = new HashMap<AID, String>();
     //Check if list of parkings has been updated.
     private boolean isParkingListUpdated = false;
+    //Chceck if reservation was successful.
+    private boolean isPlaceReservationSuccessful = false;
     //Agent's location.
     private int[] agentLocation = {0, 0};
     private AID parkingTarget;
@@ -34,9 +35,10 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
-        addBehaviour(new updateListOfParkings());
-        addBehaviour(new callForParkingOffers());
         addBehaviour(new sendReservationInfo());
+        addBehaviour(new UpdateListOfParkings());
+        addBehaviour(new CallForParkingOffers());
+        addBehaviour(new CancelClientReservation());
     }
 
     protected void takeDown() {
@@ -48,7 +50,7 @@ public class CarAgent extends Agent {
      * Part of MapParking Protocol.
      * TODO: Move this class to a separate file/package.
      */
-    private class updateListOfParkings extends Behaviour {
+    private class UpdateListOfParkings extends Behaviour {
 
         private MessageTemplate mt; // The template to receive replies
         private int repliesCnt = 0;
@@ -111,14 +113,14 @@ public class CarAgent extends Agent {
      * Part of PlaceReservation Protocol.
      * TODO: Move this class to a separate file/package.
      */
-    private class callForParkingOffers extends Behaviour {
+    private class CallForParkingOffers extends Behaviour {
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
         private int repliesCnt = 0;
         //Shortest path between car and parking.
         private double shortestDistance;
         private AID closestParking;
-        String isFree;
+        private Map<AID, Boolean> parkingAgentAvailability = new HashMap<AID, Boolean>();
 
         public void action() {
             if (isParkingListUpdated) {
@@ -147,10 +149,10 @@ public class CarAgent extends Agent {
                             //Reply received.
                             if (reply.getPerformative() == ACLMessage.PROPOSE) {
                                 AID sender = reply.getSender();
-                                isFree = reply.getContent();
-                                parkingAgentAvailability.put(sender, isFree);
+                                Boolean isParkingFree = Boolean.parseBoolean(reply.getContent());
+                                parkingAgentAvailability.put(sender, isParkingFree);
 
-                                if (Boolean.parseBoolean(isFree)) {
+                                if (isParkingFree) {
                                     //Change type of location from String to Array.
                                     String arr = parkingAgentLocations.get(sender);
                                     String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
@@ -181,13 +183,16 @@ public class CarAgent extends Agent {
                             repliesCnt++;
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {
-                                    if (Boolean.parseBoolean(parkingAgentAvailability.get(parkingAgent))) {
+                                    if (parkingAgentAvailability.get(parkingAgent)) {
                                         System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is available for reservation.");
                                     } else {
                                         System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is occupied.");
                                     }
                                 }
                                 if (shortestDistance != 0) {
+                                    /**
+                                     * TODO: parking location equal to car location
+                                     */
                                     System.out.println("Best Location: " + parkingAgentLocations.get(closestParking) + " and shortestDistance is " + shortestDistance);
                                 } else {
                                     /**
@@ -196,9 +201,9 @@ public class CarAgent extends Agent {
 //                                    step = 0;
 //                                    break;
                                     System.out.println("there is no match");
+                                    step = 4;
                                 }
                                 //All replies received.
-                                System.out.println("Received place proposals from all parking agents.");
                                 step = 2;
                             }
                         } else {
@@ -223,15 +228,15 @@ public class CarAgent extends Agent {
                         step = 3;
                         break;
                     case 3:
-
                         reply = myAgent.receive(mt);
                         if (reply != null) {
                             //Receive the place reservation order reply.
                             if (reply.getPerformative() == ACLMessage.INFORM) {
                                 // Reservation successful.
                                 parkingTarget = reply.getSender();
-                                isPlaceAccepted=true;
+                                isPlaceAccepted = true;
                                 System.out.println("Place reserved.");
+                                isPlaceReservationSuccessful = true;
                             } else {
                                 //Reservation failed.
                                 System.out.println("Failure. Parking is occupied.");
@@ -249,10 +254,11 @@ public class CarAgent extends Agent {
             return step == 4;
         }
     }
+
     /*implementation of TrackReservation protocol*/
     private class sendReservationInfo extends Behaviour {
         private MessageTemplate mt;
-        private int step=0;
+        private int step = 0;
 
         public void action() {
             if (isPlaceAccepted) {
@@ -262,22 +268,71 @@ public class CarAgent extends Agent {
                         ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                         inform.addReceiver(parkingTarget);
-                        inform.setConversationId("send-reservation-info-"+myAgent.getAID()+conversationNumber);
+                        inform.setConversationId("send-reservation-info-" + myAgent.getAID() + conversationNumber);
                         inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                         //TODO zamienić id parkingu na id konkretnego miejsca/wsp miejsca/inne  pomysły
                         inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
 
                         myAgent.send(inform);
                         System.out.println("Client sent reservation info to car tracker.");
-                        step=1;
+                        step = 1;
                         break;
                 }
             }
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
-            return step==1;
+            return step == 1;
         }
     }
-}
+
+    /**
+     * Cancel a reservation for a parking space.
+     * Part of CancelReservation Protocol.
+     * TODO: Move this class to a separate file/package.
+     */
+    private class CancelClientReservation extends Behaviour {
+        private MessageTemplate mt; // The template to receive replies
+        private int step = 0;
+
+        public void action() {
+            if (isPlaceReservationSuccessful) {
+                switch (step) {
+                    case 0:
+                        //Send a request to cancel reservation.
+                        ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
+                        cancel.addReceiver(parkingTarget);
+                        cancel.setConversationId("cancel-reservation");
+                        cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
+                        myAgent.send(cancel);
+                        System.out.println("Sent CANCEL to target parking.");
+
+                        //Prepare the template to get proposals.
+                        mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cancel-reservation"),
+                                MessageTemplate.MatchInReplyTo(cancel.getReplyWith()));
+                        step = 1;
+                        break;
+                    case 1:
+                        ACLMessage reply = myAgent.receive(mt);
+                        if (reply != null) {
+                            //Receive the place reservation order reply.
+                            if (reply.getPerformative() == ACLMessage.CONFIRM) {
+                                // Reservation successful.
+                                isPlaceAccepted = false;
+                                System.out.println("Reservation cancelled.");
+                                step = 2;
+                            }
+                        } else {
+                            block();
+                        }
+                            break;
+                        }
+                }
+            }
+
+            public boolean done() { // if we return true this behaviour will end its cycle
+                return step == 2;
+            }
+        }
+    }
 
