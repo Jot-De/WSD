@@ -21,6 +21,8 @@ public class CarAgent extends Agent {
     //Agent's location.
     private int[] agentLocation = {0, 0};
     private AID parkingTarget;
+    private boolean isPlaceAccepted = false;
+    private int conversationNumber=0; //variable to create conversation uniqe ID
 
     // List of other agents in the container.
     private AID[] parkingAgents = {
@@ -34,6 +36,7 @@ public class CarAgent extends Agent {
 
         addBehaviour(new updateListOfParkings());
         addBehaviour(new callForParkingOffers());
+        addBehaviour(new sendReservationInfo());
     }
 
     protected void takeDown() {
@@ -102,6 +105,7 @@ public class CarAgent extends Agent {
             return step == 2;
         }
     }
+
     /**
      * Make a reservation for a parking space.
      * Part of PlaceReservation Protocol.
@@ -183,7 +187,7 @@ public class CarAgent extends Agent {
                                         System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is occupied.");
                                     }
                                 }
-                                if (shortestDistance != 0 ) {
+                                if (shortestDistance != 0) {
                                     System.out.println("Best Location: " + parkingAgentLocations.get(closestParking) + " and shortestDistance is " + shortestDistance);
                                 } else {
                                     /**
@@ -204,46 +208,75 @@ public class CarAgent extends Agent {
                             block();
                         }
                         break;
-                case 2:
-                    //Ask for reservation at the parking which provided the best offer.
-                    ACLMessage reservation = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+                    case 2:
+                        //Ask for reservation at the parking which provided the best offer.
+                        ACLMessage reservation = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 
-                    reservation.addReceiver(closestParking);
-                    reservation.setConversationId("offer-place");
-                    reservation.setReplyWith("reservation"+System.currentTimeMillis());
-                    myAgent.send(reservation);
+                        reservation.addReceiver(closestParking);
+                        reservation.setConversationId("offer-place");
+                        reservation.setReplyWith("reservation" + System.currentTimeMillis());
+                        myAgent.send(reservation);
 
-                    //Prepare the template to get the reply
-                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
-                                            MessageTemplate.MatchInReplyTo(reservation.getReplyWith()));
-                    step = 3;
-                    break;
-                case 3:
+                        //Prepare the template to get the reply
+                        mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
+                                MessageTemplate.MatchInReplyTo(reservation.getReplyWith()));
+                        step = 3;
+                        break;
+                    case 3:
 
-                    reply = myAgent.receive(mt);
-                    if (reply != null){
-                        //Receive the place reservation order reply.
-                        if (reply.getPerformative() == ACLMessage.INFORM){
-                           // Reservation successful.
-                            parkingTarget = reply.getSender();
-                            System.out.println("Place reserved." );
+                        reply = myAgent.receive(mt);
+                        if (reply != null) {
+                            //Receive the place reservation order reply.
+                            if (reply.getPerformative() == ACLMessage.INFORM) {
+                                // Reservation successful.
+                                parkingTarget = reply.getSender();
+                                isPlaceAccepted=true;
+                                System.out.println("Place reserved.");
+                            } else {
+                                //Reservation failed.
+                                System.out.println("Failure. Parking is occupied.");
+                            }
+                            step = 4;
+                        } else {
+                            block();
                         }
-                        else{
-                            //Reservation failed.
-                            System.out.println("Failure. Parking is occupied.");
-                        }
-                        step = 4;
-                    }
-                    else{
-                        block();
-                    }
-                    break;
+                        break;
                 }
             }
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
             return step == 4;
+        }
+    }
+    /*implementation of TrackReservation protocol*/
+    private class sendReservationInfo extends Behaviour {
+        private MessageTemplate mt;
+        private int step=0;
+
+        public void action() {
+            if (isPlaceAccepted) {
+                switch (step) {
+                    case 0:
+                        //Send the cfp to parking agents.
+                        ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+
+                        inform.addReceiver(parkingTarget);
+                        inform.setConversationId("send-reservation-info-"+myAgent.getAID()+conversationNumber);
+                        inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
+                        //TODO zamienić id parkingu na id konkretnego miejsca/wsp miejsca/inne  pomysły
+                        inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
+
+                        myAgent.send(inform);
+                        System.out.println("Client sent reservation info to car tracker.");
+                        step=1;
+                        break;
+                }
+            }
+        }
+
+        public boolean done() { // if we return true this behaviour will end its cycle
+            return step==1;
         }
     }
 }

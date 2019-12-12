@@ -27,6 +27,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new SendCoordinates());
         addBehaviour(new SendAvailablePlaceInfo());
         addBehaviour(new ConfirmReservation());
+        addBehaviour(new getReservationInfo());
     }
 
     protected void takeDown() {
@@ -119,6 +120,26 @@ public class ParkingAgent extends Agent {
                 System.out.println(("Sent reply with information about reservation"));
             }
             else{
+                block();
+            }
+        }
+    }
+
+    private class getReservationInfo extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+                String conversationID = msg.getConversationId();
+                //Return early if conversation id is not set to offer-place.
+                if (!conversationID.matches(".*send-reservation-info-.*")) return;
+
+                ACLMessage reply = msg.createReply();
+                reply.setPerformative(ACLMessage.CONFIRM);
+                myAgent.send(reply);
+                System.out.println(("Car Tracker got reservation into from Client"));
+
+            } else {
                 block();
             }
         }
