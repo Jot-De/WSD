@@ -268,7 +268,7 @@ public class CarAgent extends Agent {
                         inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
 
                         myAgent.send(inform);
-                        System.out.println("Sent inform to Parking Manager.");
+                        System.out.println("Client sent reservation info to car tracker.");
                         step=1;
                         break;
                 }
