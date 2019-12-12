@@ -18,6 +18,7 @@ public class CarAgent extends Agent {
     private Map<AID, String> parkingAgentAvailability = new HashMap<AID, String>();
     //
     private boolean isParkingListUpdated = false;
+    private boolean isPlaceAccepted = false;
     //Agents location
     private int[] location = {0, 0};
 
@@ -183,6 +184,19 @@ public class CarAgent extends Agent {
             }
         }
 
+        public boolean done() { // if we return true this behaviour will end its cycle
+            return step == 2;
+        }
+    }
+
+    private class sendReservationInfo extends Behaviour {
+        private MessageTemplate mt;
+        private int step = 0;
+        public void action() {
+            if (isPlaceAccepted) {
+
+                }
+            }
         public boolean done() { // if we return true this behaviour will end its cycle
             return step == 2;
         }
