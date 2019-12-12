@@ -249,7 +249,7 @@ public class CarAgent extends Agent {
             return step == 4;
         }
     }
-
+    /*implementation of TrackReservation protocol*/
     private class sendReservationInfo extends Behaviour {
         private MessageTemplate mt;
         private int step=0;
