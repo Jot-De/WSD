@@ -19,7 +19,7 @@ public class CarAgent extends Agent {
     //Check if list of parkings has been updated.
     private boolean isParkingListUpdated = false;
     //Agent's location.
-    private int[] agentLocation = {0, 0};
+    private int[] agentLocation = {0, 0}; //is fixed but TODO make cars move
     private AID parkingTarget;
 
     // List of other agents in the container.
