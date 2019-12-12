@@ -22,7 +22,7 @@ public class CarAgent extends Agent {
     private int[] agentLocation = {0, 0};
     private AID parkingTarget;
     private boolean isPlaceAccepted = false;
-
+    private int conversationNumber=0; //variable to create conversation uniqe ID
 
     // List of other agents in the container.
     private AID[] parkingAgents = {
@@ -36,6 +36,7 @@ public class CarAgent extends Agent {
 
         addBehaviour(new updateListOfParkings());
         addBehaviour(new callForParkingOffers());
+        addBehaviour(new sendReservationInfo());
     }
 
     protected void takeDown() {
@@ -229,6 +230,7 @@ public class CarAgent extends Agent {
                             if (reply.getPerformative() == ACLMessage.INFORM) {
                                 // Reservation successful.
                                 parkingTarget = reply.getSender();
+                                isPlaceAccepted=true;
                                 System.out.println("Place reserved.");
                             } else {
                                 //Reservation failed.
@@ -250,27 +252,31 @@ public class CarAgent extends Agent {
 
     private class sendReservationInfo extends Behaviour {
         private MessageTemplate mt;
-        private int step = 0;
+        private int step=0;
 
         public void action() {
             if (isPlaceAccepted) {
-                //Send the cfp to parking agents.
-                ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+                switch (step) {
+                    case 0:
+                        //Send the cfp to parking agents.
+                        ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
-                inform.addReceiver(parkingTarget);
-                inform.setConversationId("send-reservation-info");
-                inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                //TODO zamienić id parkingu na id konkretnego miejsca/wsp miejsca/inne  pomysły
-                inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
+                        inform.addReceiver(parkingTarget);
+                        inform.setConversationId("send-reservation-info-"+myAgent.getAID()+conversationNumber);
+                        inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
+                        //TODO zamienić id parkingu na id konkretnego miejsca/wsp miejsca/inne  pomysły
+                        inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
 
-                myAgent.send(inform);
-                System.out.println("Sent inform to Parking Manager.");
-
+                        myAgent.send(inform);
+                        System.out.println("Sent inform to Parking Manager.");
+                        step=1;
+                        break;
+                }
             }
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
-            return step == 4;
+            return step==1;
         }
     }
 }
