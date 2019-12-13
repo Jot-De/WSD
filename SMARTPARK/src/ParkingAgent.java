@@ -16,9 +16,8 @@ public class ParkingAgent extends Agent {
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 
-    private AID[] carsToTrack = new AID[10]; //max 10 cars to track 10x[id]
-    private AID emptyAID = carsToTrack[0]; // this is the AID you get when "AID variable = new AID"
-    private int[][] carsToTrackLocation = new int[10][2]; //max 10 cars to track 10x[x location, y location]
+    private List<AID> carsToTrack = new ArrayList<AID>(); //
+    private int[][] carsToTrackLocation = new int[10][2]; //
 
     protected void setup() {
         // Print a welcome message.
@@ -34,7 +33,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new ConfirmReservation());
         addBehaviour(new getReservationInfo());
         addBehaviour(new ConfirmCancellation());
-        //addBehaviour(new TrackCar());
+        addBehaviour(new TrackCar());
     }
 
     protected void takeDown() {
@@ -190,11 +189,7 @@ public class ParkingAgent extends Agent {
                 System.out.println("I, parking " + myAgent.getAID() + " send request for subscription of" + client_ID);
 
                 //add to trackedCardsAndTheirLocation
-                for (int i = 0; i < carsToTrack.length; i++) {
-                    if (carsToTrack[i] == emptyAID) {
-                        carsToTrack[i] = client_ID;
-                    }
-                }
+                carsToTrack.add(client_ID);
                 sub.setContent("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
                 System.out.println("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
                 myAgent.send(sub);
@@ -204,21 +199,21 @@ public class ParkingAgent extends Agent {
 
         }
     }
-    /*
+
     private class TrackCar extends CyclicBehaviour {
         private AID client_ID;
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM) ;
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-location-info-");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 String conversationID = msg.getConversationId();
                 client_ID = msg.getSender();
                 //Return early if conversation id is not set to offer-place.
                 if (!conversationID.matches(".*send-location-info.*")) return;
-                for (int j = 0; j < carsToTrack.length; j++) {
+                for (int j = 0; j < carsToTrack.size(); j++) {
                     {
-                        if (carsToTrack[j] == client_ID) {
+                        if (carsToTrack.get(j).equals(client_ID)) {
                             String location_string = msg.getContent();
                             //Change type of location from String to Array. TODO To jest bardzo WET trzeba zrobic z tego funkcje to bedzie DRY
                             String[] items = location_string.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
@@ -232,7 +227,7 @@ public class ParkingAgent extends Agent {
                             }
                             carsToTrackLocation[j][0] = results[0];
                             carsToTrackLocation[j][1] = results[1];
-                            System.out.println("Location of " + client_ID + " to " + carsToTrackLocation[0] +"," +carsToTrackLocation[1]);
+                            System.out.println("Location of " + client_ID + " to " + Arrays.toString(carsToTrackLocation[0]) + "," + carsToTrackLocation[1]);
 
                         }
                     }
@@ -244,5 +239,4 @@ public class ParkingAgent extends Agent {
 
         }
     }
-    */
 }

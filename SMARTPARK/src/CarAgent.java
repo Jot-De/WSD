@@ -380,9 +380,9 @@ public class CarAgent extends Agent {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                     inform.addReceiver(subscribingCarTracker_ID);
-                    inform.setConversationId("send-location-info-" + myAgent.getAID() + conversationNumber);
+                    inform.setConversationId("send-location-info-"); //+ myAgent.getAID() + conversationNumber);
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                    inform.setContent(oldAgentLocation[0] +"," + oldAgentLocation[1]);
+                    inform.setContent(agentLocation[0] +"," + agentLocation[1]);
                     myAgent.send(inform);
                     oldAgentLocation = agentLocation; //update oldAgentLocation
                     System.out.println("My location info is " + oldAgentLocation[0] +"," + oldAgentLocation[1]);
