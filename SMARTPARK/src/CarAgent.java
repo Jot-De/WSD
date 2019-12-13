@@ -1,6 +1,7 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -21,9 +22,14 @@ public class CarAgent extends Agent {
     private boolean isPlaceReservationSuccessful = false;
     //Agent's location.
     private int[] agentLocation = {0, 0};
+    private int[] oldAgentLocation = {-1,-1};
     private AID parkingTarget;
     private boolean isPlaceAccepted = false;
     private int conversationNumber=0; //variable to create conversation uniqe ID
+
+    private boolean isApproacher = false;
+    private AID subscribingCarTracker_ID;
+    boolean hasCarTracker = false;
 
     // List of other agents in the container.
     private AID[] parkingAgents = {
@@ -38,7 +44,9 @@ public class CarAgent extends Agent {
         addBehaviour(new sendReservationInfo());
         addBehaviour(new UpdateListOfParkings());
         addBehaviour(new CallForParkingOffers());
-        addBehaviour(new CancelClientReservation());
+        //addBehaviour(new CancelClientReservation());
+        addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
+        addBehaviour(new SendLocationInfo());
     }
 
     protected void takeDown() {
@@ -274,7 +282,8 @@ public class CarAgent extends Agent {
                         inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
 
                         myAgent.send(inform);
-                        System.out.println("Client sent reservation info to car tracker.");
+                        isApproacher = true;
+                        System.out.println("SendReservationInfo: Client sent reservation info to carTracker.");
                         step = 1;
                         break;
                 }
@@ -291,6 +300,8 @@ public class CarAgent extends Agent {
      * Part of CancelReservation Protocol.
      * TODO: Move this class to a separate file/package.
      */
+
+    /*
     private class CancelClientReservation extends Behaviour {
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
@@ -325,14 +336,62 @@ public class CarAgent extends Agent {
                         } else {
                             block();
                         }
-                            break;
-                        }
+                        break;
                 }
             }
+        }
 
-            public boolean done() { // if we return true this behaviour will end its cycle
-                return step == 2;
+        public boolean done() { // if we return true this behaviour will end its cycle
+            return step == 2;
+        }
+    }
+    */
+    private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
+
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE);
+            ACLMessage msg = myAgent.receive(mt);
+            if (isApproacher) {
+                if (msg != null) {
+                    //ACCEPT_PROPOSAL Message received. Process it
+                    String conversationID = msg.getConversationId();
+
+                    //Return early if conversation id is not set to offer-place.
+                    if (!conversationID.matches(".*send-subscription-request.*")) return;
+
+                    subscribingCarTracker_ID = msg.getSender();
+                    hasCarTracker = true;
+                    System.out.println(subscribingCarTracker_ID + "has subscribed for info about my location");
+                } else {
+                    block();
+                }
             }
         }
     }
+
+    private class SendLocationInfo extends CyclicBehaviour {
+
+        boolean carHasMoved;
+        public void action() {
+            //TODO make the car move
+            carHasMoved = oldAgentLocation[0] == agentLocation[0] && oldAgentLocation[1] == agentLocation[1];
+            if (hasCarTracker) {
+                if (!carHasMoved) {
+                    ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+
+                    inform.addReceiver(subscribingCarTracker_ID);
+                    inform.setConversationId("send-location-info-" + myAgent.getAID() + conversationNumber);
+                    inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
+                    inform.setContent(oldAgentLocation[0] +"," + oldAgentLocation[1]);
+                    myAgent.send(inform);
+                    oldAgentLocation = agentLocation; //update oldAgentLocation
+                    System.out.println("My location info is " + oldAgentLocation[0] +"," + oldAgentLocation[1]);
+                } else {
+                    block();
+                }
+            }
+        }
+    }
+}
+
 

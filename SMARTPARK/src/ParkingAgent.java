@@ -1,3 +1,4 @@
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
@@ -15,6 +16,10 @@ public class ParkingAgent extends Agent {
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 
+    private AID[] carsToTrack = new AID[10]; //max 10 cars to track 10x[id]
+    private AID emptyAID = carsToTrack[0]; // this is the AID you get when "AID variable = new AID"
+    private int[][] carsToTrackLocation = new int[10][2]; //max 10 cars to track 10x[x location, y location]
+
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
@@ -29,6 +34,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new ConfirmReservation());
         addBehaviour(new getReservationInfo());
         addBehaviour(new ConfirmCancellation());
+        //addBehaviour(new TrackCar());
     }
 
     protected void takeDown() {
@@ -155,11 +161,15 @@ public class ParkingAgent extends Agent {
     }
 
     private class getReservationInfo extends CyclicBehaviour {
+        private AID client_ID;
+
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
+                //GET RESERVATION INFO
                 String conversationID = msg.getConversationId();
+                client_ID = msg.getSender();
                 //Return early if conversation id is not set to offer-place.
                 if (!conversationID.matches(".*send-reservation-info-.*")) return;
 
@@ -168,9 +178,71 @@ public class ParkingAgent extends Agent {
                 myAgent.send(reply);
                 System.out.println(("Car Tracker got reservation into from Client"));
 
+                //SUBSCRIBE FOR CAR LOCATION
+                ACLMessage sub = new ACLMessage(ACLMessage.SUBSCRIBE);
+                sub.addReceiver(client_ID);
+                System.out.println("I am going to subscribe to " + client_ID);
+                //variable to create conversation uniqe ID
+                int conversationNumber = 0;
+                sub.setConversationId("send-subscription-request-" + myAgent.getAID() + conversationNumber);
+                //inform
+                sub.setContent("I, parking " + myAgent.getAID() + " send request for subscription of" + client_ID);
+                System.out.println("I, parking " + myAgent.getAID() + " send request for subscription of" + client_ID);
+
+                //add to trackedCardsAndTheirLocation
+                for (int i = 0; i < carsToTrack.length; i++) {
+                    if (carsToTrack[i] == emptyAID) {
+                        carsToTrack[i] = client_ID;
+                    }
+                }
+                sub.setContent("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
+                System.out.println("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
+                myAgent.send(sub);
             } else {
                 block();
             }
+
         }
     }
+    /*
+    private class TrackCar extends CyclicBehaviour {
+        private AID client_ID;
+
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM) ;
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+                String conversationID = msg.getConversationId();
+                client_ID = msg.getSender();
+                //Return early if conversation id is not set to offer-place.
+                if (!conversationID.matches(".*send-location-info.*")) return;
+                for (int j = 0; j < carsToTrack.length; j++) {
+                    {
+                        if (carsToTrack[j] == client_ID) {
+                            String location_string = msg.getContent();
+                            //Change type of location from String to Array. TODO To jest bardzo WET trzeba zrobic z tego funkcje to bedzie DRY
+                            String[] items = location_string.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+                            int[] results = new int[items.length];
+                            for (int i = 0; i < items.length; i++) {
+                                try {
+                                    results[i] = Integer.parseInt(items[i]);
+                                } catch (NumberFormatException nfe) {
+                                    System.out.println("Error occurred");
+                                }
+                            }
+                            carsToTrackLocation[j][0] = results[0];
+                            carsToTrackLocation[j][1] = results[1];
+                            System.out.println("Location of " + client_ID + " to " + carsToTrackLocation[0] +"," +carsToTrackLocation[1]);
+
+                        }
+                    }
+                }
+                System.out.println(("Car Tracker got reservation into from Client"));
+            } else {
+                block();
+            }
+
+        }
+    }
+    */
 }
