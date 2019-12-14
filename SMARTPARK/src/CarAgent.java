@@ -4,10 +4,14 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import utils.agentUtils;
 
 import java.sql.SQLOutput;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static utils.agentUtils.parseLocation;
 
 
 /**
@@ -163,16 +167,7 @@ public class CarAgent extends Agent {
                                 if (isParkingFree) {
                                     //Change type of location from String to Array.
                                     String arr = parkingAgentLocations.get(sender);
-                                    String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
-                                    int[] results = new int[items.length];
-                                    //Create an Array.
-                                    for (int i = 0; i < items.length; i++) {
-                                        try {
-                                            results[i] = Integer.parseInt(items[i]);
-                                        } catch (NumberFormatException nfe) {
-                                            System.out.println("Error occurred");
-                                        }
-                                    }
+                                    int[] results = parseLocation(arr);
 
                                     //Calculate the distance between car and parking on 2D plane.
                                     int x1 = agentLocation[0];
@@ -276,10 +271,10 @@ public class CarAgent extends Agent {
                         ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                         inform.addReceiver(parkingTarget);
+                        // FIXME: Maybe remove AID+conversationNumber.
                         inform.setConversationId("send-reservation-info-" + myAgent.getAID() + conversationNumber);
                         inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                        //TODO zamienić id parkingu na id konkretnego miejsca/wsp miejsca/inne  pomysły
-                        inform.setContent("Moje ID " + myAgent.getAID() + " . Mój parking: " + parkingTarget);
+                        inform.setContent("My ID " + myAgent.getAID() + " . My parking: " + parkingTarget);
 
                         myAgent.send(inform);
                         isApproacher = true;
@@ -361,7 +356,7 @@ public class CarAgent extends Agent {
 
                     subscribingCarTracker_ID = msg.getSender();
                     hasCarTracker = true;
-                    System.out.println(subscribingCarTracker_ID + "has subscribed for info about my location");
+                    System.out.println(subscribingCarTracker_ID.getName() + "has subscribed for info about my location");
                 } else {
                     block();
                 }
@@ -371,21 +366,21 @@ public class CarAgent extends Agent {
 
     private class SendLocationInfo extends CyclicBehaviour {
 
-        boolean carHasMoved;
+        private boolean carHasMoved;
         public void action() {
             //TODO make the car move
-            carHasMoved = oldAgentLocation[0] == agentLocation[0] && oldAgentLocation[1] == agentLocation[1];
+            carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
             if (hasCarTracker) {
-                if (!carHasMoved) {
+                if (carHasMoved) {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                     inform.addReceiver(subscribingCarTracker_ID);
                     inform.setConversationId("send-location-info-"); //+ myAgent.getAID() + conversationNumber);
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                    inform.setContent(agentLocation[0] +"," + agentLocation[1]);
+                    inform.setContent(Arrays.toString(agentLocation));
                     myAgent.send(inform);
                     oldAgentLocation = agentLocation; //update oldAgentLocation
-                    System.out.println("My location info is " + oldAgentLocation[0] +"," + oldAgentLocation[1]);
+                    System.out.println("My location info is " + Arrays.toString(oldAgentLocation));
                 } else {
                     block();
                 }

@@ -7,8 +7,7 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.*;
 
-import static utils.agentUtils.initializeParkingLocation;
-import static utils.agentUtils.freeParkingLocation;
+import static utils.agentUtils.*;
 
 public class ParkingAgent extends Agent {
 
@@ -161,6 +160,7 @@ public class ParkingAgent extends Agent {
 
     private class getReservationInfo extends CyclicBehaviour {
         private AID client_ID;
+        private String client_name;
 
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
@@ -169,29 +169,30 @@ public class ParkingAgent extends Agent {
                 //GET RESERVATION INFO
                 String conversationID = msg.getConversationId();
                 client_ID = msg.getSender();
-                //Return early if conversation id is not set to offer-place.
+                client_name = client_ID.getName();
+                //Return early if conversation id is not set to send-reservation-info.
                 if (!conversationID.matches(".*send-reservation-info-.*")) return;
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
                 myAgent.send(reply);
-                System.out.println(("Car Tracker got reservation into from Client"));
+                System.out.println("Car Tracker got reservation info from Client");
 
-                //SUBSCRIBE FOR CAR LOCATION
+                /* SUBSCRIBE FOR CAR LOCATION */
                 ACLMessage sub = new ACLMessage(ACLMessage.SUBSCRIBE);
                 sub.addReceiver(client_ID);
-                System.out.println("I am going to subscribe to " + client_ID);
-                //variable to create conversation uniqe ID
+                System.out.println("I am going to subscribe to " + client_name);
+                //variable to create conversation unique ID
                 int conversationNumber = 0;
                 sub.setConversationId("send-subscription-request-" + myAgent.getAID() + conversationNumber);
                 //inform
-                sub.setContent("I, parking " + myAgent.getAID() + " send request for subscription of" + client_ID);
-                System.out.println("I, parking " + myAgent.getAID() + " send request for subscription of" + client_ID);
+                sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of" + client_name);
+                System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of" + client_name);
 
                 //add to trackedCardsAndTheirLocation
                 carsToTrack.add(client_ID);
-                sub.setContent("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
-                System.out.println("I, parking " + myAgent.getAID() + " added " + client_ID + " to track Car.");
+                sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
+                System.out.println("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
                 myAgent.send(sub);
             } else {
                 block();
@@ -215,19 +216,10 @@ public class ParkingAgent extends Agent {
                     {
                         if (carsToTrack.get(j).equals(client_ID)) {
                             String location_string = msg.getContent();
-                            //Change type of location from String to Array. TODO To jest bardzo WET trzeba zrobic z tego funkcje to bedzie DRY
-                            String[] items = location_string.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
-                            int[] results = new int[items.length];
-                            for (int i = 0; i < items.length; i++) {
-                                try {
-                                    results[i] = Integer.parseInt(items[i]);
-                                } catch (NumberFormatException nfe) {
-                                    System.out.println("Error occurred");
-                                }
-                            }
+                            int[] results = parseLocation(location_string);
                             carsToTrackLocation[j][0] = results[0];
                             carsToTrackLocation[j][1] = results[1];
-                            System.out.println("Location of " + client_ID + " to " + Arrays.toString(carsToTrackLocation[0]) + "," + carsToTrackLocation[1]);
+                            System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carsToTrackLocation[0]) + "," + carsToTrackLocation[1]);
 
                         }
                     }

@@ -9,6 +9,7 @@ public class agentUtils {
 
     /**
      * Initialize parking location with unique value.
+     *
      * @return location of the parking.
      */
     public static int[] initializeParkingLocation() {
@@ -36,6 +37,23 @@ public class agentUtils {
                 }
             }
         }
+    }
+
+    /**
+     * Parse string to 2D array.
+     */
+    public static int[] parseLocation(String locationString) {
+        String[] items = locationString.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+        int[] location = new int[items.length];
+        //Create an Array.
+        for (int i = 0; i < items.length; i++) {
+            try {
+                location[i] = Integer.parseInt(items[i]);
+            } catch (NumberFormatException nfe) {
+                System.out.println("Error occurred");
+            }
+        }
+        return location;
     }
 
     /**
