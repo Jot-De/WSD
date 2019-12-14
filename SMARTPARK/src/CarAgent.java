@@ -19,7 +19,7 @@ import static utils.agentUtils.parseLocation;
  */
 public class CarAgent extends Agent {
 
-    private Map<AID, String> parkingAgentLocations = new HashMap<AID, String>();
+    private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
     //Check if list of parkings has been updated.
     private boolean isParkingListUpdated = false;
     //Chceck if reservation was successful.
@@ -93,14 +93,14 @@ public class CarAgent extends Agent {
                         if (reply.getPerformative() == ACLMessage.INFORM) {
                             AID sender = reply.getSender();
                             String location = reply.getContent();
-                            parkingAgentLocations.put(sender, location);
+                            parkingAgentLocations.put(sender, parseLocation(location));
                         }
                         repliesCnt++;
                         if (repliesCnt >= parkingAgents.length) {
                             // We received all replies so print locations.
                             System.out.println("Received locations from all parking agents.");
                             for (AID parkingAgent : parkingAgents) {
-                                System.out.println("Location: " + parkingAgentLocations.get(parkingAgent));
+                                System.out.println("Location: " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
                             }
                             step = 2;
                             isParkingListUpdated = true;
@@ -166,14 +166,13 @@ public class CarAgent extends Agent {
 
                                 if (isParkingFree) {
                                     //Change type of location from String to Array.
-                                    String arr = parkingAgentLocations.get(sender);
-                                    int[] results = parseLocation(arr);
+                                    int[] parkingLocation = parkingAgentLocations.get(sender);
 
                                     //Calculate the distance between car and parking on 2D plane.
                                     int x1 = agentLocation[0];
                                     int y1 = agentLocation[1];
-                                    int x2 = results[0];
-                                    int y2 = results[1];
+                                    int x2 = parkingLocation[0];
+                                    int y2 = parkingLocation[1];
                                     double distance = Math.hypot(x1 - x2, y1 - y2);
 
                                     if (closestParking == null || distance < shortestDistance) {
@@ -187,16 +186,16 @@ public class CarAgent extends Agent {
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
-                                        System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is available for reservation.");
+                                        System.out.println("Location: " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
                                     } else {
-                                        System.out.println("Location: " + parkingAgentLocations.get(parkingAgent) + " is occupied.");
+                                        System.out.println("Location: " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
                                 if (shortestDistance != 0) {
                                     /**
                                      * TODO: parking location equal to car location
                                      */
-                                    System.out.println("Best Location: " + parkingAgentLocations.get(closestParking) + " and shortestDistance is " + shortestDistance);
+                                    System.out.println("Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
                                 } else {
                                     /**
                                      * TODO: start again from step = 0
