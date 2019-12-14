@@ -3,6 +3,7 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.tools.sniffer.Message;
 
 import java.util.*;
 
@@ -44,7 +45,8 @@ public class ParkingAgent extends Agent {
      */
     private class SendCoordinates extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM_REF).MatchConversationId("update-location");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM_REF),
+                    MessageTemplate.MatchConversationId("update-location"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
