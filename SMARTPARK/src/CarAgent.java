@@ -4,9 +4,7 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import utils.agentUtils;
 
-import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,19 +17,18 @@ import static utils.agentUtils.parseLocation;
  */
 public class CarAgent extends Agent {
 
-    private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
-    //Check if list of parkings has been updated.
-    private boolean isParkingListUpdated = false;
-    //Check if reservation was successful.
-    private boolean isPlaceReservationSuccessful = false;
     //Agent's location.
     private int[] agentLocation = {0, 0};
     private int[] oldAgentLocation = {-1,-1};
-    private AID parkingTarget;
-    private boolean isPlaceAccepted = false;
 
+    private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
+
+    private boolean isUpdateListOfParkingsDone = false;
+    private boolean isCallForParkingOffersDone = false;
     private boolean isApproacher = false;
-    private AID subscribingCarTracker_ID;
+
+    private AID parkingTarget;
+
     boolean hasCarTracker = false;
 
     // List of other agents in the container.
@@ -47,7 +44,7 @@ public class CarAgent extends Agent {
         addBehaviour(new sendReservationInfo());
         addBehaviour(new UpdateListOfParkings());
         addBehaviour(new CallForParkingOffers());
-        //addBehaviour(new CancelClientReservation());
+        addBehaviour(new CancelClientReservation());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
         addBehaviour(new SendLocationInfo());
     }
@@ -102,7 +99,7 @@ public class CarAgent extends Agent {
                                 System.out.println(myAgent.getName() +  "\t Location of "+ parkingAgent.getName() + " is " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
                             }
                             step = 2;
-                            isParkingListUpdated = true;
+                            isUpdateListOfParkingsDone = true;
                         }
                     } else {
                         // This method marks the behaviour as "blocked" so that agent does not
@@ -134,7 +131,7 @@ public class CarAgent extends Agent {
         private Map<AID, Boolean> parkingAgentAvailability = new HashMap<AID, Boolean>();
 
         public void action() {
-            if (isParkingListUpdated) {
+            if (isUpdateListOfParkingsDone) {
                 switch (step) {
                     case 0:
                         //Send the cfp to parking agents.
@@ -236,9 +233,8 @@ public class CarAgent extends Agent {
                             if (reply.getPerformative() == ACLMessage.INFORM) {
                                 // Reservation successful.
                                 parkingTarget = reply.getSender();
-                                isPlaceAccepted = true;
+                                isCallForParkingOffersDone = true;
                                 System.out.println(myAgent.getName() + ": \t Place reserved at:" + parkingTarget.getName());
-                                isPlaceReservationSuccessful = true;
                             } else {
                                 //Reservation failed.
                                 System.out.println(myAgent.getName() + ": \t Failure. Parking is occupied.");
@@ -267,7 +263,7 @@ public class CarAgent extends Agent {
         private int step = 0;
 
         public void action() {
-            if (isPlaceAccepted) {
+            if (isCallForParkingOffersDone) {
                 switch (step) {
                     case 0:
                         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
@@ -318,7 +314,7 @@ public class CarAgent extends Agent {
         private int step = 0;
 
         public void action() {
-            if (isPlaceReservationSuccessful) {
+            if (hasCarTracker) {
                 switch (step) {
                     case 0:
                         //Send a request to cancel reservation.
@@ -340,7 +336,8 @@ public class CarAgent extends Agent {
                             //Receive the place reservation order reply.
                             if (reply.getPerformative() == ACLMessage.CONFIRM) {
                                 // Reservation successful.
-                                isPlaceAccepted = false;
+                                isCallForParkingOffersDone = false;
+                                hasCarTracker = false;
                                 System.out.println("Reservation cancelled.");
                                 step = 2;
                             }
@@ -364,9 +361,8 @@ public class CarAgent extends Agent {
             ACLMessage msg = myAgent.receive(mt);
             if (isApproacher) {
                 if (msg != null) {
-                    subscribingCarTracker_ID = msg.getSender();
                     hasCarTracker = true;
-                    System.out.println(myAgent.getName() + "\t" + subscribingCarTracker_ID.getName() + "has subscribed for info about my location");
+                    System.out.println(myAgent.getName() + "\t" + parkingTarget.getName() + "has subscribed for info about my location");
                 } else {
                     block();
                 }
@@ -379,16 +375,17 @@ public class CarAgent extends Agent {
         public void action() {
             // TODO: make the car move.
             boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
+            carHasMoved = true;
             if (hasCarTracker) {
                 if (carHasMoved) {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
-                    inform.addReceiver(subscribingCarTracker_ID);
+                    inform.addReceiver(parkingTarget);
                     inform.setConversationId("send-location-info");
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                     inform.setContent(Arrays.toString(agentLocation));
                     oldAgentLocation = agentLocation; //update oldAgentLocation
-                    System.out.println(myAgent.getName() + "\tSent my location: " + Arrays.toString(oldAgentLocation) + " to " + subscribingCarTracker_ID.getName());
+                    System.out.println(myAgent.getName() + "\tSent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
                     myAgent.send(inform);
                 } else {
                     block();
