@@ -1,6 +1,5 @@
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -28,9 +27,9 @@ public class ParkingAgent extends Agent {
 
         addBehaviour(new SendCoordinates());
         addBehaviour(new SendAvailablePlaceInfo());
-        addBehaviour(new ConfirmReservation());
+        addBehaviour(new COnfirmClientReservation());
         addBehaviour(new getReservationInfo());
-        addBehaviour(new ConfirmCancellation());
+        addBehaviour(new ConfirmClientCancellation());
         addBehaviour(new TrackCar());
     }
 
@@ -45,15 +44,9 @@ public class ParkingAgent extends Agent {
      */
     private class SendCoordinates extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM_REF);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM_REF).MatchConversationId("update-location");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                // Message received. Process it
-                String conversationID = msg.getConversationId();
-
-                // Return early if conversation id is not set to update-location.
-                if (!conversationID.equals("update-location")) return;
-
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.INFORM);
@@ -76,15 +69,9 @@ public class ParkingAgent extends Agent {
      */
     private class SendAvailablePlaceInfo extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP).MatchConversationId("offer-place");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                //Message received. Process it
-                String conversationID = msg.getConversationId();
-
-                //Return early if conversation id is not set to offer-place.
-                if (!conversationID.equals("offer-place")) return;
-
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.PROPOSE);
@@ -101,17 +88,11 @@ public class ParkingAgent extends Agent {
     /**
      * Send information about reservation to carAgent.
      */
-    private class ConfirmReservation extends CyclicBehaviour {
+    private class COnfirmClientReservation extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL).MatchConversationId("offer-place");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                //ACCEPT_PROPOSAL Message received. Process it
-                String conversationID = msg.getConversationId();
-
-                //Return early if conversation id is not set to offer-place.
-                if (!conversationID.equals("offer-place")) return;
-
                 ACLMessage reply = msg.createReply();
 
                 if (isFree) {
@@ -133,17 +114,11 @@ public class ParkingAgent extends Agent {
     /**
      * Send confirmation about cancelling reservation to carAgent.
      */
-    private class ConfirmCancellation extends CyclicBehaviour {
+    private class ConfirmClientCancellation extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CANCEL);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CANCEL).MatchConversationId("cancel-reservation");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                //ACCEPT_PROPOSAL Message received. Process it
-                String conversationID = msg.getConversationId();
-
-                //Return early if conversation id is not set to offer-place.
-                if (!conversationID.equals("cancel-reservation")) return;
-
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.CONFIRM);
@@ -162,15 +137,12 @@ public class ParkingAgent extends Agent {
         private String client_name;
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-reservation-info");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 //GET RESERVATION INFO
-                String conversationID = msg.getConversationId();
                 client_ID = msg.getSender();
                 client_name = client_ID.getName();
-                //Return early if conversation id is not set to send-reservation-info.
-                if (!conversationID.matches(".*send-reservation-info-.*")) return;
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
@@ -183,7 +155,7 @@ public class ParkingAgent extends Agent {
                 System.out.println("I am going to subscribe to " + client_name);
                 //variable to create conversation unique ID
                 int conversationNumber = 0;
-                sub.setConversationId("send-subscription-request-" + myAgent.getAID() + conversationNumber);
+                sub.setConversationId("send-subscription-request");
                 //inform
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
                 System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
@@ -204,14 +176,10 @@ public class ParkingAgent extends Agent {
         private AID client_ID;
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-location-info-");
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-location-info");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                String conversationID = msg.getConversationId();
                 client_ID = msg.getSender();
-                //Return early if conversation id is not set to offer-place.
-                // FIXME: HMM🤔
-//                if (!conversationID.matches(".*send-location-info.*")) return;
                 int[] carLocation = parseLocation(msg.getContent());
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);

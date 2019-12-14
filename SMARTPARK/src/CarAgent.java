@@ -270,8 +270,7 @@ public class CarAgent extends Agent {
                         ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                         inform.addReceiver(parkingTarget);
-                        // FIXME: Maybe remove AID+conversationNumber.
-                        inform.setConversationId("send-reservation-info-" + myAgent.getAID() + conversationNumber);
+                        inform.setConversationId("send-reservation-info");
                         inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                         inform.setContent("My ID " + myAgent.getAID() + " . My parking: " + parkingTarget);
 
@@ -343,16 +342,10 @@ public class CarAgent extends Agent {
     private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE);
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE).MatchConversationId("send-subscription-request");
             ACLMessage msg = myAgent.receive(mt);
             if (isApproacher) {
                 if (msg != null) {
-                    //ACCEPT_PROPOSAL Message received. Process it
-                    String conversationID = msg.getConversationId();
-
-                    //Return early if conversation id is not set to offer-place.
-                    if (!conversationID.matches(".*send-subscription-request.*")) return;
-
                     subscribingCarTracker_ID = msg.getSender();
                     hasCarTracker = true;
                     System.out.println(subscribingCarTracker_ID.getName() + "has subscribed for info about my location");
@@ -374,7 +367,7 @@ public class CarAgent extends Agent {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                     inform.addReceiver(subscribingCarTracker_ID);
-                    inform.setConversationId("send-location-info-"); //+ myAgent.getAID() + conversationNumber);
+                    inform.setConversationId("send-location-info");
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                     inform.setContent(Arrays.toString(agentLocation));
                     oldAgentLocation = agentLocation; //update oldAgentLocation
