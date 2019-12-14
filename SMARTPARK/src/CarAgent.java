@@ -384,7 +384,6 @@ public class CarAgent extends Agent {
                                 hasCarTracker = false;
                                 parkingTarget = null;
                                 isApproacher = false;
-                                isCallForParkingOffersDone = false;
                                 System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled.");
                                 step = 2;
                             }
