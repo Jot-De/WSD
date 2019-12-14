@@ -2,6 +2,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -43,7 +44,13 @@ public class CarAgent extends Agent {
         addBehaviour(new UpdateListOfParkings());
         addBehaviour(new CallForParkingOffers());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
-        addBehaviour(new SendLocationInfo());
+        // Add a TickerBehaviour that sends location to car tracker every 5 seconds.
+        addBehaviour(new TickerBehaviour(this, 5000) {
+            @Override
+            protected void onTick() {
+                myAgent.addBehaviour(new SendLocationInfo());
+            }
+        });
 //        addBehaviour(new CancelClientReservation());
     }
 
@@ -318,7 +325,7 @@ public class CarAgent extends Agent {
      * Send information about our current location to the car tracker.
      * Part of TrackCar protocol.
      */
-    private class SendLocationInfo extends CyclicBehaviour {
+    private class SendLocationInfo extends Behaviour {
 
         public void action() {
             // TODO: make the car move.
@@ -336,6 +343,10 @@ public class CarAgent extends Agent {
             } else {
                 block();
             }
+        }
+
+        public boolean done() {
+            return true;
         }
     }
 
