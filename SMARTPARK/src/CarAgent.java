@@ -268,24 +268,40 @@ public class CarAgent extends Agent {
                 switch (step) {
                     case 0:
                         //Send the cfp to parking agents.
-                        ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+                        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 
-                        inform.addReceiver(parkingTarget);
-                        inform.setConversationId("send-reservation-info");
-                        inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                        inform.setContent("My ID " + myAgent.getAID() + " . My parking: " + parkingTarget);
+                        msg.addReceiver(parkingTarget);
+                        msg.setConversationId("send-reservation-info");
+                        msg.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
+                        msg.setContent("My ID " + myAgent.getAID() + " . My parking: " + parkingTarget);
 
-                        myAgent.send(inform);
+                        myAgent.send(msg);
                         isApproacher = true;
                         System.out.println("SendReservationInfo: Client sent reservation info to carTracker.");
+
+                        // Prepare the template to get replies.
+                        mt = MessageTemplate.and(MessageTemplate.MatchConversationId("send-reservation-info"),
+                                MessageTemplate.MatchInReplyTo(msg.getReplyWith()));
+
                         step = 1;
                         break;
+                    case 1:
+                        ACLMessage reply = myAgent.receive(mt);
+                        if (reply != null) {
+                            if (reply.getPerformative() == ACLMessage.CONFIRM) {
+                                // We got confirmation...
+                                step = 2;
+                                break;
+                            }
+                        } else {
+                            block();
+                        }
                 }
             }
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
-            return step == 1;
+            return step == 2;
         }
     }
 
