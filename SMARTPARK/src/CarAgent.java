@@ -159,12 +159,10 @@ public class CarAgent extends Agent {
 
                         if (reply != null) {
                             //Reply received.
-                            if (reply.getPerformative() == ACLMessage.PROPOSE) {
+                            if(reply.getPerformative() == ACLMessage.PROPOSE) {
                                 AID sender = reply.getSender();
-                                Boolean isParkingFree = Boolean.parseBoolean(reply.getContent());
-                                parkingAgentAvailability.put(sender, isParkingFree);
+                                parkingAgentAvailability.put(sender, true);
 
-                                if (isParkingFree) {
                                     //Change type of location from String to Array.
                                     int[] parkingLocation = parkingAgentLocations.get(sender);
 
@@ -180,8 +178,11 @@ public class CarAgent extends Agent {
                                         shortestDistance = distance;
                                         closestParking = reply.getSender();
                                     }
-                                }
+
+                            } else {
+                                parkingAgentAvailability.put(reply.getSender(), false);
                             }
+
                             repliesCnt++;
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {

@@ -69,14 +69,17 @@ public class ParkingAgent extends Agent {
      */
     private class SendAvailablePlaceInfo extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP).MatchConversationId("offer-place");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CFP), MessageTemplate.MatchConversationId("offer-place"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
-
-                reply.setPerformative(ACLMessage.PROPOSE);
-                reply.setContent(Boolean.toString(isFree));
-
+                if(isFree) {
+                    reply.setPerformative(ACLMessage.PROPOSE);
+                    reply.setContent(Boolean.toString(isFree));
+                }else{
+                    reply.setPerformative(ACLMessage.REFUSE);
+                    reply.setContent("not-available");
+                }
                 myAgent.send(reply);
                 System.out.println("Sent reply with information about availability");
             } else {
