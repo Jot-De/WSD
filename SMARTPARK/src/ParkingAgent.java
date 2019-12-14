@@ -82,7 +82,7 @@ public class ParkingAgent extends Agent {
                     reply.setContent("not-available");
                 }
 
-                System.out.println(myAgent.getName()+  ": \tSent reply with information about availability");
+                System.out.println(myAgent.getName()+  ":\t Sent reply with information about availability");
                 myAgent.send(reply);
             } else {
                 block();
@@ -109,7 +109,7 @@ public class ParkingAgent extends Agent {
                     reply.setPerformative(ACLMessage.FAILURE);
                 }
 
-                System.out.println(myAgent.getName() + ": \tSent reply with information about reservation.");
+                System.out.println(myAgent.getName() + ":\t Sent reply with information about reservation.");
                 myAgent.send(reply);
             } else {
                 block();
@@ -131,7 +131,7 @@ public class ParkingAgent extends Agent {
                 reply.setPerformative(ACLMessage.CONFIRM);
                 isFree = true;
 
-                System.out.println(("Send info about cancelling the reservation. This place is available for further customers"));
+                System.out.println(myAgent.getName()+  ":\t Send info about cancelling the reservation. This place is available for further customers");
                 myAgent.send(reply);
             } else {
                 block();
@@ -151,8 +151,8 @@ public class ParkingAgent extends Agent {
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
+                System.out.println(myAgent.getName() + ":\t Got reservation info from " + client_name);
                 myAgent.send(reply);
-                System.out.println(myAgent.getName() + "\t Got reservation info from " + client_name);
 
                 /**
                  *
@@ -166,7 +166,7 @@ public class ParkingAgent extends Agent {
                 carAgentLocations.put(client_ID, null);
 
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
-                System.out.println(myAgent.getName() + "\t I am tracking now " + client_name);
+                System.out.println(myAgent.getName() + ":\t I am tracking now " + client_name);
 
                 myAgent.send(sub);
             } else {
@@ -186,9 +186,9 @@ public class ParkingAgent extends Agent {
                 int[] carLocation = parseLocation(msg.getContent());
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
-                    System.out.println(myAgent.getName() + "\tCurrent location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
+                    System.out.println(myAgent.getName() + ":\t Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
                 } else {
-                    System.out.println("Received information from car we do not track, ignore it.");
+                    System.out.println(myAgent.getName() + ":\t Received information from car we do not track, ignore it.");
                 }
             } else {
                 block();
