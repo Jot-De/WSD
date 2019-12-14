@@ -43,12 +43,12 @@ public class agentUtils {
      * Parse string to 2D array.
      */
     public static int[] parseLocation(String locationString) {
-        String[] items = locationString.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
-        int[] location = new int[items.length];
+        String[] coordinates = locationString.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+        int[] location = new int[coordinates.length];
         //Create an Array.
-        for (int i = 0; i < items.length; i++) {
+        for (int i = 0; i < coordinates.length; i++) {
             try {
-                location[i] = Integer.parseInt(items[i]);
+                location[i] = Integer.parseInt(coordinates[i]);
             } catch (NumberFormatException nfe) {
                 System.out.println("Error occurred");
             }

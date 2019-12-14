@@ -378,9 +378,9 @@ public class CarAgent extends Agent {
                     inform.setConversationId("send-location-info-"); //+ myAgent.getAID() + conversationNumber);
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                     inform.setContent(Arrays.toString(agentLocation));
-                    myAgent.send(inform);
                     oldAgentLocation = agentLocation; //update oldAgentLocation
                     System.out.println("My location info is " + Arrays.toString(oldAgentLocation));
+                    myAgent.send(inform);
                 } else {
                     block();
                 }

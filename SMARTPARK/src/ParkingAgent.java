@@ -186,8 +186,8 @@ public class ParkingAgent extends Agent {
                 int conversationNumber = 0;
                 sub.setConversationId("send-subscription-request-" + myAgent.getAID() + conversationNumber);
                 //inform
-                sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of" + client_name);
-                System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of" + client_name);
+                sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
+                System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
 
                 //add to trackedCardsAndTheirLocation
                 carsToTrack.add(client_ID);
@@ -211,6 +211,7 @@ public class ParkingAgent extends Agent {
                 String conversationID = msg.getConversationId();
                 client_ID = msg.getSender();
                 //Return early if conversation id is not set to offer-place.
+                // FIXME: HMM🤔
                 if (!conversationID.matches(".*send-location-info.*")) return;
                 for (int j = 0; j < carsToTrack.size(); j++) {
                     {
@@ -219,7 +220,7 @@ public class ParkingAgent extends Agent {
                             int[] results = parseLocation(location_string);
                             carsToTrackLocation[j][0] = results[0];
                             carsToTrackLocation[j][1] = results[1];
-                            System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carsToTrackLocation[0]) + "," + carsToTrackLocation[1]);
+                            System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carsToTrackLocation[0]));
 
                         }
                     }
@@ -228,7 +229,6 @@ public class ParkingAgent extends Agent {
             } else {
                 block();
             }
-
         }
     }
 }
