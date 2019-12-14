@@ -359,7 +359,8 @@ public class CarAgent extends Agent {
     private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE).MatchConversationId("send-subscription-request");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE),
+                    MessageTemplate.MatchConversationId("send-subscription-request"));
             ACLMessage msg = myAgent.receive(mt);
             if (isApproacher) {
                 if (msg != null) {
@@ -375,10 +376,9 @@ public class CarAgent extends Agent {
 
     private class SendLocationInfo extends CyclicBehaviour {
 
-        private boolean carHasMoved;
         public void action() {
-            //TODO make the car move
-            carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
+            // TODO: make the car move.
+            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
             if (hasCarTracker) {
                 if (carHasMoved) {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
