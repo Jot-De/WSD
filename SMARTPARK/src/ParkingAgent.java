@@ -3,7 +3,6 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.tools.sniffer.Message;
 
 import java.util.*;
 
@@ -28,8 +27,8 @@ public class ParkingAgent extends Agent {
 
         addBehaviour(new SendCoordinates());
         addBehaviour(new SendAvailablePlaceInfo());
-        addBehaviour(new COnfirmClientReservation());
-        addBehaviour(new getReservationInfo());
+        addBehaviour(new ConfirmClientReservation());
+        addBehaviour(new GetReservationInfo());
         addBehaviour(new ConfirmClientCancellation());
         addBehaviour(new TrackCar());
     }
@@ -54,8 +53,8 @@ public class ParkingAgent extends Agent {
                 reply.setPerformative(ACLMessage.INFORM);
                 reply.setContent(Arrays.toString(location));
 
+                System.out.println(myAgent.getName() + ":\t Sent reply with location to car agent.");
                 myAgent.send(reply);
-                System.out.println("Sent reply with location to car agent.");
             } else {
                 // This method marks the behaviour as "blocked" so that agent does not
                 // schedule if for execution anymore.
@@ -63,7 +62,6 @@ public class ParkingAgent extends Agent {
                 block();
             }
         }
-
     }
 
     /**
@@ -71,7 +69,8 @@ public class ParkingAgent extends Agent {
      */
     private class SendAvailablePlaceInfo extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CFP), MessageTemplate.MatchConversationId("offer-place"));
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CFP),
+                    MessageTemplate.MatchConversationId("offer-place"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
@@ -82,8 +81,9 @@ public class ParkingAgent extends Agent {
                     reply.setPerformative(ACLMessage.REFUSE);
                     reply.setContent("not-available");
                 }
+
+                System.out.println(myAgent.getName()+  ": \tSent reply with information about availability");
                 myAgent.send(reply);
-                System.out.println("Sent reply with information about availability");
             } else {
                 block();
             }
@@ -93,9 +93,10 @@ public class ParkingAgent extends Agent {
     /**
      * Send information about reservation to carAgent.
      */
-    private class COnfirmClientReservation extends CyclicBehaviour {
+    private class ConfirmClientReservation extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL).MatchConversationId("offer-place");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL),
+                    MessageTemplate.MatchConversationId("offer-place"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
@@ -108,8 +109,8 @@ public class ParkingAgent extends Agent {
                     reply.setPerformative(ACLMessage.FAILURE);
                 }
 
+                System.out.println(myAgent.getName() + ": \tSent reply with information about reservation.");
                 myAgent.send(reply);
-                System.out.println(("Sent reply with information about reservation."));
             } else {
                 block();
             }
@@ -121,7 +122,8 @@ public class ParkingAgent extends Agent {
      */
     private class ConfirmClientCancellation extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CANCEL).MatchConversationId("cancel-reservation");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
+                    MessageTemplate.MatchConversationId("cancel-reservation"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
@@ -129,15 +131,15 @@ public class ParkingAgent extends Agent {
                 reply.setPerformative(ACLMessage.CONFIRM);
                 isFree = true;
 
-                myAgent.send(reply);
                 System.out.println(("Send info about cancelling the reservation. This place is available for further customers"));
+                myAgent.send(reply);
             } else {
                 block();
             }
         }
     }
 
-    private class getReservationInfo extends CyclicBehaviour {
+    private class GetReservationInfo extends CyclicBehaviour {
         private AID client_ID;
         private String client_name;
 
