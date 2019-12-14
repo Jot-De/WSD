@@ -140,37 +140,34 @@ public class ParkingAgent extends Agent {
     }
 
     private class GetReservationInfo extends CyclicBehaviour {
-        private AID client_ID;
-        private String client_name;
-
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-reservation-info");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                    MessageTemplate.MatchConversationId("send-reservation-info"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 //GET RESERVATION INFO
-                client_ID = msg.getSender();
-                client_name = client_ID.getName();
+                AID client_ID = msg.getSender();
+                String client_name = client_ID.getName();
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
                 myAgent.send(reply);
-                System.out.println("Car Tracker got reservation info from Client");
+                System.out.println(myAgent.getName() + "\t Got reservation info from " + client_name);
 
-                /* SUBSCRIBE FOR CAR LOCATION */
+                /**
+                 *
+                 *  SUBSCRIBE FOR CAR LOCATION
+                 *
+                 */
                 ACLMessage sub = new ACLMessage(ACLMessage.SUBSCRIBE);
                 sub.addReceiver(client_ID);
-                System.out.println("I am going to subscribe to " + client_name);
-                //variable to create conversation unique ID
-                int conversationNumber = 0;
                 sub.setConversationId("send-subscription-request");
-                //inform
-                sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
-                System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
-
+                sub.setReplyWith("subscribe" + System.currentTimeMillis());
                 carAgentLocations.put(client_ID, null);
+
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
-                System.out.println("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
-                System.out.println(("Car Tracker got reservation into from Client"));
+                System.out.println(myAgent.getName() + "\t I am tracking now " + client_name);
+
                 myAgent.send(sub);
             } else {
                 block();
@@ -180,17 +177,18 @@ public class ParkingAgent extends Agent {
     }
 
     private class TrackCar extends CyclicBehaviour {
-        private AID client_ID;
-
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM).MatchConversationId("send-location-info");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                    MessageTemplate.MatchConversationId("send-location-info"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                client_ID = msg.getSender();
+                AID client_ID = msg.getSender();
                 int[] carLocation = parseLocation(msg.getContent());
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
-                    System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carLocation));
+                    System.out.println(myAgent.getName() + "\tCurrent location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
+                } else {
+                    System.out.println("Received information from car we do not track, ignore it.");
                 }
             } else {
                 block();

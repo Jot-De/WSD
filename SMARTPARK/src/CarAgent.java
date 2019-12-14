@@ -257,7 +257,11 @@ public class CarAgent extends Agent {
         }
     }
 
-    /*implementation of TrackReservation protocol*/
+    /**
+     *
+     * Implementation of TrackReservation protocol.
+     *
+     */
     private class sendReservationInfo extends Behaviour {
         private MessageTemplate mt;
         private int step = 0;
@@ -266,7 +270,6 @@ public class CarAgent extends Agent {
             if (isPlaceAccepted) {
                 switch (step) {
                     case 0:
-                        //Send the cfp to parking agents.
                         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 
                         msg.addReceiver(parkingTarget);
@@ -276,7 +279,7 @@ public class CarAgent extends Agent {
 
                         myAgent.send(msg);
                         isApproacher = true;
-                        System.out.println("SendReservationInfo: Client sent reservation info to carTracker.");
+                        System.out.println(myAgent.getName() + "\t Sent reservation info to " + parkingTarget.getName());
 
                         // Prepare the template to get replies.
                         mt = MessageTemplate.and(MessageTemplate.MatchConversationId("send-reservation-info"),
@@ -356,13 +359,14 @@ public class CarAgent extends Agent {
     private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
 
         public void action() {
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE).MatchConversationId("send-subscription-request");
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE),
+                    MessageTemplate.MatchConversationId("send-subscription-request"));
             ACLMessage msg = myAgent.receive(mt);
             if (isApproacher) {
                 if (msg != null) {
                     subscribingCarTracker_ID = msg.getSender();
                     hasCarTracker = true;
-                    System.out.println(subscribingCarTracker_ID.getName() + "has subscribed for info about my location");
+                    System.out.println(myAgent.getName() + "\t" + subscribingCarTracker_ID.getName() + "has subscribed for info about my location");
                 } else {
                     block();
                 }
@@ -372,10 +376,9 @@ public class CarAgent extends Agent {
 
     private class SendLocationInfo extends CyclicBehaviour {
 
-        private boolean carHasMoved;
         public void action() {
-            //TODO make the car move
-            carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
+            // TODO: make the car move.
+            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
             if (hasCarTracker) {
                 if (carHasMoved) {
                     ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
@@ -385,7 +388,7 @@ public class CarAgent extends Agent {
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                     inform.setContent(Arrays.toString(agentLocation));
                     oldAgentLocation = agentLocation; //update oldAgentLocation
-                    System.out.println("My location info is " + Arrays.toString(oldAgentLocation));
+                    System.out.println(myAgent.getName() + "\tSent my location: " + Arrays.toString(oldAgentLocation) + " to " + subscribingCarTracker_ID.getName());
                     myAgent.send(inform);
                 } else {
                     block();
