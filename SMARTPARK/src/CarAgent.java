@@ -192,7 +192,7 @@ public class CarAgent extends Agent {
                                     /**
                                      * TODO: parking location equal to car location
                                      */
-                                    System.out.println(myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
+                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %.2f \n"), shortestDistance);
                                 } else {
                                     /**
                                      * TODO: start again from step = 0
