@@ -11,6 +11,7 @@ import static utils.agentUtils.*;
 public class ParkingAgent extends Agent {
 
     private int[] location;
+    private int freeParkingSlots = 1;
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 
@@ -18,12 +19,32 @@ public class ParkingAgent extends Agent {
 
     public static String consoleIndentation = "\t\t";
 
+    private void decreaseFreeParkingSlotValue() {
+        if (freeParkingSlots > 0) {
+            freeParkingSlots--;
+        }
+
+        if (freeParkingSlots == 0) {
+            isFree = false;
+        }
+    }
+
+    private void increaseFreeParkingSlotValue() {
+        freeParkingSlots++;
+        isFree = true;
+    }
+
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
         //Flag indicating parking availability
-        isFree = rand.nextBoolean();
+        if (freeParkingSlots > 0) {
+            isFree = true;
+        } else {
+            isFree = false;
+        }
+
         location = initializeParkingLocation();
 
 
@@ -81,7 +102,7 @@ public class ParkingAgent extends Agent {
                 if(isFree) {
                     reply.setPerformative(ACLMessage.PROPOSE);
                     reply.setContent(Boolean.toString(isFree));
-                }else{
+                } else {
                     reply.setPerformative(ACLMessage.REFUSE);
                     reply.setContent("not-available");
                 }
@@ -107,10 +128,9 @@ public class ParkingAgent extends Agent {
                 ACLMessage reply = msg.createReply();
 
                 if (isFree) {
+                    decreaseFreeParkingSlotValue();
                     reply.setPerformative(ACLMessage.INFORM);
-                    isFree = false;
                 } else {
-                    //Send FAILURE if the place was booked faster by a different agent.
                     reply.setPerformative(ACLMessage.FAILURE);
                 }
 
@@ -135,6 +155,8 @@ public class ParkingAgent extends Agent {
                 AID client_ID = msg.getSender();
                 String client_name = client_ID.getName();
 
+                carAgentLocations.put(client_ID, null);
+
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
                 System.out.println(myAgent.getName() + consoleIndentation + "Got reservation info from " + client_name);
@@ -149,7 +171,6 @@ public class ParkingAgent extends Agent {
                 sub.addReceiver(client_ID);
                 sub.setConversationId("send-subscription-request");
                 sub.setReplyWith("subscribe" + System.currentTimeMillis());
-                carAgentLocations.put(client_ID, null);
 
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
                 System.out.println(myAgent.getName() + consoleIndentation + "I am tracking now " + client_name);
@@ -198,7 +219,7 @@ public class ParkingAgent extends Agent {
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.CONFIRM);
-                isFree = true;
+                increaseFreeParkingSlotValue();
 
                 System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. This place is available for further customers");
                 myAgent.send(reply);

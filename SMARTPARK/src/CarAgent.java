@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static utils.agentUtils.calculateDistance;
 import static utils.agentUtils.parseLocation;
 
 public class CarAgent extends Agent {
@@ -41,10 +42,9 @@ public class CarAgent extends Agent {
         addBehaviour(new sendReservationInfo());
         addBehaviour(new UpdateListOfParkings());
         addBehaviour(new CallForParkingOffers());
-        addBehaviour(new CancelClientReservation());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
         addBehaviour(new SendLocationInfo());
-        addBehaviour(new CancelClientReservation());
+//        addBehaviour(new CancelClientReservation());
     }
 
     protected void takeDown() {
@@ -124,8 +124,6 @@ public class CarAgent extends Agent {
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
         private int repliesCnt = 0;
-        //Shortest path between car and parking.
-        private double shortestDistance;
         private AID closestParking;
         private Map<AID, Boolean> parkingAgentAvailability = new HashMap<AID, Boolean>();
 
@@ -143,7 +141,6 @@ public class CarAgent extends Agent {
                         System.out.println(myAgent.getName() + consoleIndentation + "Sent CFP to parking agents. Waiting for replies...");
                         myAgent.send(cfp);
 
-
                         //Prepare the template to get proposals.
                         mt = MessageTemplate.and(MessageTemplate.MatchConversationId("offer-place"),
                                 MessageTemplate.MatchInReplyTo(cfp.getReplyWith()));
@@ -158,52 +155,41 @@ public class CarAgent extends Agent {
                             if (reply.getPerformative() == ACLMessage.PROPOSE) {
                                 AID sender = reply.getSender();
                                 parkingAgentAvailability.put(sender, true);
-
-                                //Change type of location from String to Array.
-                                int[] parkingLocation = parkingAgentLocations.get(sender);
-
-                                //Calculate the distance between car and parking on 2D plane.
-                                int x1 = agentLocation[0];
-                                int y1 = agentLocation[1];
-                                int x2 = parkingLocation[0];
-                                int y2 = parkingLocation[1];
-                                double distance = Math.hypot(x1 - x2, y1 - y2);
-
-                                if (closestParking == null || distance < shortestDistance) {
-                                    //This is the best parking match for car agent.
-                                    shortestDistance = distance;
-                                    closestParking = reply.getSender();
-                                }
-
                             } else {
                                 parkingAgentAvailability.put(reply.getSender(), false);
                             }
 
                             repliesCnt++;
                             if (repliesCnt >= parkingAgents.length) {
+
+                                //Shortest path between car and parking.
+                                double shortestDistance = Double.MAX_VALUE;
+
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
+                                        double distanceToParking = calculateDistance(agentLocation, parkingAgentLocations.get(parkingAgent));
+
+                                        if (distanceToParking < shortestDistance) {
+                                            shortestDistance = distanceToParking;
+                                            closestParking = parkingAgent;
+                                        }
                                         System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
                                     } else {
                                         System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
-                                if (shortestDistance != 0) {
-                                    /**
-                                     * TODO: parking location equal to car location
-                                     */
+
+                                if (shortestDistance != Double.MAX_VALUE) {
+                                    step = 2;
                                     System.out.println(myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
                                 } else {
-                                    /**
-                                     * TODO: start again from step = 0
-                                     */
-//                                    step = 0;
-//                                    break;
+                                    // Repeat this behaviour from step 0.
+                                    step = 0;
+                                    repliesCnt = 0;
+                                    closestParking = null;
                                     System.out.println(myAgent.getName() + consoleIndentation + "No parking available for reservation");
-                                    step = 4;
+                                    myAgent.doWait(2000);
                                 }
-                                //All replies received.
-                                step = 2;
                             }
                         } else {
                             // This method marks the behaviour as "blocked" so that agent does not
@@ -235,12 +221,17 @@ public class CarAgent extends Agent {
                                 parkingTarget = reply.getSender();
                                 isCallForParkingOffersDone = true;
                                 System.out.println(myAgent.getName() + consoleIndentation + "Place reserved at:" + parkingTarget.getName());
-
+                                step = 4;
                             } else {
                                 //Reservation failed.
                                 System.out.println(myAgent.getName() + consoleIndentation + "Failure. Parking is occupied.");
+
+                                // Retry.
+                                step = 0;
+                                repliesCnt = 0;
+                                closestParking = null;
+                                myAgent.doWait(2000);
                             }
-                            step = 4;
                         } else {
                             block();
                         }
@@ -332,7 +323,6 @@ public class CarAgent extends Agent {
         public void action() {
             // TODO: make the car move.
             boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
-            carHasMoved = true;
             if (hasCarTracker && carHasMoved) {
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 

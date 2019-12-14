@@ -66,4 +66,21 @@ public class agentUtils {
             }
         }
     }
+
+    /**
+     * Calculate distance from source to target
+     * @param sourceLocation
+     * @param targetLocation
+     * @return
+     */
+    public static double calculateDistance(int[] sourceLocation, int[] targetLocation) {
+        //Calculate the distance between car and parking on 2D plane.
+        int x1 = sourceLocation[0];
+        int y1 = sourceLocation[1];
+        int x2 = targetLocation[0];
+        int y2 = targetLocation[1];
+        double distance = Math.hypot(x1 - x2, y1 - y2);
+
+        return distance;
+    }
 }
