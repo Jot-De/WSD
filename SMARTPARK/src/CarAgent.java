@@ -11,15 +11,11 @@ import java.util.Map;
 
 import static utils.agentUtils.parseLocation;
 
-
-/**
- * car agent class
- */
 public class CarAgent extends Agent {
 
     //Agent's location.
     private int[] agentLocation = {0, 0};
-    private int[] oldAgentLocation = {-1,-1};
+    private int[] oldAgentLocation = {-1, -1};
 
     private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
     // List of other agents in the container.
@@ -56,9 +52,8 @@ public class CarAgent extends Agent {
     }
 
     /**
-     * Get and cache locations of parking agents.
+     * Receive and cache locations of parking agents.
      * Part of MapParking Protocol.
-     * TODO: Move this class to a separate file/package.
      */
     private class UpdateListOfParkings extends Behaviour {
 
@@ -98,7 +93,7 @@ public class CarAgent extends Agent {
                             // We received all replies so print locations.
                             System.out.println(myAgent.getName() + consoleIndentation + "Received locations from all parking agents.");
                             for (AID parkingAgent : parkingAgents) {
-                                System.out.println(myAgent.getName() + consoleIndentation + "Location of "+ parkingAgent.getName() + " is " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
+                                System.out.println(myAgent.getName() + consoleIndentation + "Location of " + parkingAgent.getName() + " is " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
                             }
                             step = 2;
                             isUpdateListOfParkingsDone = true;
@@ -121,7 +116,9 @@ public class CarAgent extends Agent {
     /**
      * Make a reservation for a parking space.
      * Part of PlaceReservation Protocol.
-     * TODO: Move this class to a separate file/package.
+     * <p>
+     * Case 0-1 - CallForParkingOffers action.
+     * Case 2-3 - AcceptParkingOffer action.
      */
     private class CallForParkingOffers extends Behaviour {
         private MessageTemplate mt; // The template to receive replies
@@ -158,25 +155,25 @@ public class CarAgent extends Agent {
 
                         if (reply != null) {
                             //Reply received.
-                            if(reply.getPerformative() == ACLMessage.PROPOSE) {
+                            if (reply.getPerformative() == ACLMessage.PROPOSE) {
                                 AID sender = reply.getSender();
                                 parkingAgentAvailability.put(sender, true);
 
-                                    //Change type of location from String to Array.
-                                    int[] parkingLocation = parkingAgentLocations.get(sender);
+                                //Change type of location from String to Array.
+                                int[] parkingLocation = parkingAgentLocations.get(sender);
 
-                                    //Calculate the distance between car and parking on 2D plane.
-                                    int x1 = agentLocation[0];
-                                    int y1 = agentLocation[1];
-                                    int x2 = parkingLocation[0];
-                                    int y2 = parkingLocation[1];
-                                    double distance = Math.hypot(x1 - x2, y1 - y2);
+                                //Calculate the distance between car and parking on 2D plane.
+                                int x1 = agentLocation[0];
+                                int y1 = agentLocation[1];
+                                int x2 = parkingLocation[0];
+                                int y2 = parkingLocation[1];
+                                double distance = Math.hypot(x1 - x2, y1 - y2);
 
-                                    if (closestParking == null || distance < shortestDistance) {
-                                        //This is the best parking match for car agent.
-                                        shortestDistance = distance;
-                                        closestParking = reply.getSender();
-                                    }
+                                if (closestParking == null || distance < shortestDistance) {
+                                    //This is the best parking match for car agent.
+                                    shortestDistance = distance;
+                                    closestParking = reply.getSender();
+                                }
 
                             } else {
                                 parkingAgentAvailability.put(reply.getSender(), false);
@@ -186,9 +183,9 @@ public class CarAgent extends Agent {
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
-                                        System.out.println(myAgent.getName()+ consoleIndentation + "Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
+                                        System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
                                     } else {
-                                        System.out.println(myAgent.getName()+ consoleIndentation + "Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
+                                        System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
                                 if (shortestDistance != 0) {
@@ -241,7 +238,7 @@ public class CarAgent extends Agent {
 
                             } else {
                                 //Reservation failed.
-                                System.out.println(myAgent.getName() + consoleIndentation +"Failure. Parking is occupied.");
+                                System.out.println(myAgent.getName() + consoleIndentation + "Failure. Parking is occupied.");
                             }
                             step = 4;
                         } else {
@@ -258,9 +255,8 @@ public class CarAgent extends Agent {
     }
 
     /**
-     *
-     * Implementation of TrackReservation protocol.
-     *
+     * Send information about our reservation to Parking (CarTracker role).
+     * Part of TrackReservation protocol.
      */
     private class sendReservationInfo extends Behaviour {
         private MessageTemplate mt;
@@ -308,11 +304,55 @@ public class CarAgent extends Agent {
     }
 
     /**
+     * Part of TrackCar protocol.
+     */
+    private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
+
+        public void action() {
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE),
+                    MessageTemplate.MatchConversationId("send-subscription-request"));
+            ACLMessage msg = myAgent.receive(mt);
+            if (isApproacher && !hasCarTracker) {
+                if (msg != null) {
+                    hasCarTracker = true;
+                    System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
+                } else {
+                    block();
+                }
+            }
+        }
+    }
+
+    /**
+     * Send information about our current location to the car tracker.
+     * Part of TrackCar protocol.
+     */
+    private class SendLocationInfo extends CyclicBehaviour {
+
+        public void action() {
+            // TODO: make the car move.
+            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
+            carHasMoved = true;
+            if (hasCarTracker && carHasMoved) {
+                ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+
+                inform.addReceiver(parkingTarget);
+                inform.setConversationId("send-location-info");
+                inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
+                inform.setContent(Arrays.toString(agentLocation));
+                oldAgentLocation = agentLocation; //update oldAgentLocation
+                System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
+                myAgent.send(inform);
+            } else {
+                block();
+            }
+        }
+    }
+
+    /**
      * Cancel a reservation for a parking space.
      * Part of CancelReservation Protocol.
-     * TODO: Move this class to a separate file/package.
      */
-
     private class CancelClientReservation extends Behaviour {
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
@@ -342,7 +382,7 @@ public class CarAgent extends Agent {
                                 // Reservation successful.
                                 isCallForParkingOffersDone = false;
                                 hasCarTracker = false;
-                                System.out.println(myAgent.getName()+ consoleIndentation + "Reservation cancelled.");
+                                System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled.");
                                 step = 2;
                             }
                         } else {
@@ -355,47 +395,6 @@ public class CarAgent extends Agent {
 
         public boolean done() { // if we return true this behaviour will end its cycle
             return step == 2;
-        }
-    }
-
-    private class ListenForLocationSubscriptionFromCarTracker extends CyclicBehaviour {
-
-        public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE),
-                    MessageTemplate.MatchConversationId("send-subscription-request"));
-            ACLMessage msg = myAgent.receive(mt);
-            if (isApproacher) {
-                if (msg != null) {
-                    hasCarTracker = true;
-                    System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
-                } else {
-                    block();
-                }
-            }
-        }
-    }
-
-    private class SendLocationInfo extends CyclicBehaviour {
-
-        public void action() {
-            // TODO: make the car move.
-            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
-            carHasMoved = true;
-            if (hasCarTracker) {
-                if (carHasMoved) {
-                    ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
-
-                    inform.addReceiver(parkingTarget);
-                    inform.setConversationId("send-location-info");
-                    inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
-                    inform.setContent(Arrays.toString(agentLocation));
-                    oldAgentLocation = agentLocation; //update oldAgentLocation
-                    System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
-                    myAgent.send(inform);
-                } else {
-                    block();
-                }
-            }
         }
     }
 }

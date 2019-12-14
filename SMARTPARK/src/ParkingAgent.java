@@ -43,6 +43,7 @@ public class ParkingAgent extends Agent {
 
     /**
      * Send coordinates to carAgent.
+     * Part of MapParkings protocol.
      */
     private class SendCoordinates extends CyclicBehaviour {
         public void action() {
@@ -68,6 +69,7 @@ public class ParkingAgent extends Agent {
 
     /**
      * Send information about availability to carAgent.
+     * Part of PlaceReservation protocol.
      */
     private class SendAvailablePlaceInfo extends CyclicBehaviour {
         public void action() {
@@ -94,6 +96,7 @@ public class ParkingAgent extends Agent {
 
     /**
      * Send information about reservation to carAgent.
+     * Part of PlaceReservation protocol.
      */
     private class ConfirmClientReservation extends CyclicBehaviour {
         public void action() {
@@ -120,27 +123,8 @@ public class ParkingAgent extends Agent {
     }
 
     /**
-     * Send confirmation about cancelling reservation to carAgent.
+     * Part of TrackReservation protocol.
      */
-    private class ConfirmClientCancellation extends CyclicBehaviour {
-        public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
-                    MessageTemplate.MatchConversationId("cancel-reservation"));
-            ACLMessage msg = myAgent.receive(mt);
-            if (msg != null) {
-                ACLMessage reply = msg.createReply();
-
-                reply.setPerformative(ACLMessage.CONFIRM);
-                isFree = true;
-
-                System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. This place is available for further customers");
-                myAgent.send(reply);
-            } else {
-                block();
-            }
-        }
-    }
-
     private class GetReservationInfo extends CyclicBehaviour {
         public void action() {
             MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
@@ -158,7 +142,7 @@ public class ParkingAgent extends Agent {
 
                 /**
                  *
-                 *  SUBSCRIBE FOR CAR LOCATION
+                 *  SUBSCRIBE FOR CLIENT LOCATION
                  *
                  */
                 ACLMessage sub = new ACLMessage(ACLMessage.SUBSCRIBE);
@@ -178,6 +162,9 @@ public class ParkingAgent extends Agent {
         }
     }
 
+    /**
+     * Part of TrackCar protocol.
+     */
     private class TrackCar extends CyclicBehaviour {
         public void action() {
             MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
@@ -192,6 +179,29 @@ public class ParkingAgent extends Agent {
                 } else {
                     System.out.println(myAgent.getName() + consoleIndentation + "Received information from car we do not track, ignore it.");
                 }
+            } else {
+                block();
+            }
+        }
+    }
+
+    /**
+     * Send confirmation about cancelling reservation to carAgent.
+     * Part of ReservationCancellation protocol.
+     */
+    private class ConfirmClientCancellation extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
+                    MessageTemplate.MatchConversationId("cancel-reservation"));
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+                ACLMessage reply = msg.createReply();
+
+                reply.setPerformative(ACLMessage.CONFIRM);
+                isFree = true;
+
+                System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. This place is available for further customers");
+                myAgent.send(reply);
             } else {
                 block();
             }
