@@ -71,7 +71,8 @@ public class ParkingAgent extends Agent {
      */
     private class SendAvailablePlaceInfo extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CFP), MessageTemplate.MatchConversationId("offer-place"));
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CFP),
+                    MessageTemplate.MatchConversationId("offer-place"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 ACLMessage reply = msg.createReply();
@@ -139,7 +140,8 @@ public class ParkingAgent extends Agent {
 
     private class getReservationInfo extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM), MessageTemplate.MatchConversationId("send-reservation-info"));
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                    MessageTemplate.MatchConversationId("send-reservation-info"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 //GET RESERVATION INFO
@@ -149,7 +151,7 @@ public class ParkingAgent extends Agent {
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
                 myAgent.send(reply);
-                System.out.println("Car Tracker got reservation info from Client");
+                System.out.println(myAgent.getName() + "\t Got reservation info from " + client_name);
 
                 /**
                  *
@@ -163,7 +165,7 @@ public class ParkingAgent extends Agent {
                 carAgentLocations.put(client_ID, null);
 
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
-                System.out.println("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
+                System.out.println(myAgent.getName() + "\t I am tracking now " + client_name);
 
                 myAgent.send(sub);
             } else {
@@ -175,14 +177,15 @@ public class ParkingAgent extends Agent {
 
     private class TrackCar extends CyclicBehaviour {
         public void action() {
-            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM), MessageTemplate.MatchConversationId("send-location-info"));
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                    MessageTemplate.MatchConversationId("send-location-info"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 AID client_ID = msg.getSender();
                 int[] carLocation = parseLocation(msg.getContent());
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
-                    System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carLocation));
+                    System.out.println(myAgent.getName() + "\tCurrent location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
                 } else {
                     System.out.println("Received information from car we do not track, ignore it.");
                 }
