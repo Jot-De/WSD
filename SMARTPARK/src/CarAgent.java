@@ -185,10 +185,9 @@ public class CarAgent extends Agent {
                                         System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
-
                                 if (shortestDistance != Double.MAX_VALUE) {
                                     step = 2;
-                                    System.out.println(myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
+                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %.2f \n"), shortestDistance);
                                 } else {
                                     // Repeat this behaviour from step 0.
                                     step = 0;
