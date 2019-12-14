@@ -15,8 +15,7 @@ public class ParkingAgent extends Agent {
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 
-    private List<AID> carsToTrack = new ArrayList<AID>(); //
-    private int[][] carsToTrackLocation = new int[10][2]; //
+    private Map<AID, int[]> carAgentLocations = new HashMap<>();
 
     protected void setup() {
         // Print a welcome message.
@@ -189,10 +188,10 @@ public class ParkingAgent extends Agent {
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
                 System.out.println("I, parking " + myAgent.getAID().getName() + " send request for subscription of " + client_name);
 
-                //add to trackedCardsAndTheirLocation
-                carsToTrack.add(client_ID);
+                carAgentLocations.put(client_ID, null);
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
                 System.out.println("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
+                System.out.println(("Car Tracker got reservation into from Client"));
                 myAgent.send(sub);
             } else {
                 block();
@@ -212,20 +211,12 @@ public class ParkingAgent extends Agent {
                 client_ID = msg.getSender();
                 //Return early if conversation id is not set to offer-place.
                 // FIXME: HMM🤔
-                if (!conversationID.matches(".*send-location-info.*")) return;
-                for (int j = 0; j < carsToTrack.size(); j++) {
-                    {
-                        if (carsToTrack.get(j).equals(client_ID)) {
-                            String location_string = msg.getContent();
-                            int[] results = parseLocation(location_string);
-                            carsToTrackLocation[j][0] = results[0];
-                            carsToTrackLocation[j][1] = results[1];
-                            System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carsToTrackLocation[0]));
-
-                        }
-                    }
+//                if (!conversationID.matches(".*send-location-info.*")) return;
+                int[] carLocation = parseLocation(msg.getContent());
+                if (carAgentLocations.containsKey(client_ID)) {
+                    carAgentLocations.put(client_ID, carLocation);
+                    System.out.println("Location of " + client_ID.getName() + " to " + Arrays.toString(carLocation));
                 }
-                System.out.println(("Car Tracker got reservation into from Client"));
             } else {
                 block();
             }
