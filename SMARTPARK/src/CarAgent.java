@@ -22,6 +22,11 @@ public class CarAgent extends Agent {
     private int[] oldAgentLocation = {-1,-1};
 
     private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
+    // List of other agents in the container.
+    private AID[] parkingAgents = {
+            new AID("parking1", AID.ISLOCALNAME),
+            new AID("parking2", AID.ISLOCALNAME)
+    };
 
     private boolean isUpdateListOfParkingsDone = false;
     private boolean isCallForParkingOffersDone = false;
@@ -29,13 +34,9 @@ public class CarAgent extends Agent {
 
     private AID parkingTarget;
 
-    boolean hasCarTracker = false;
+    private boolean hasCarTracker = false;
 
-    // List of other agents in the container.
-    private AID[] parkingAgents = {
-            new AID("parking1", AID.ISLOCALNAME),
-            new AID("parking2", AID.ISLOCALNAME)
-    };
+    private static String consoleIndentation = "\t\t\t";
 
     protected void setup() {
         // Print a welcome message.
@@ -80,7 +81,7 @@ public class CarAgent extends Agent {
                     mt = MessageTemplate.and(MessageTemplate.MatchConversationId("update-location"),
                             MessageTemplate.MatchInReplyTo(msg.getReplyWith()));
                     step = 1;
-                    System.out.println(myAgent.getName() +":\t\t Sent INFORM_REF to parking agents. Waiting for replies...");
+                    System.out.println(myAgent.getName() + consoleIndentation + "Sent INFORM_REF to parking agents. Waiting for replies...");
                     break;
                 case 1:
                     // Receive all locations from parking agents.
@@ -95,9 +96,9 @@ public class CarAgent extends Agent {
                         repliesCnt++;
                         if (repliesCnt >= parkingAgents.length) {
                             // We received all replies so print locations.
-                            System.out.println(myAgent.getName() + ": \t\t Received locations from all parking agents.");
+                            System.out.println(myAgent.getName() + consoleIndentation + "Received locations from all parking agents.");
                             for (AID parkingAgent : parkingAgents) {
-                                System.out.println(myAgent.getName() +  "\t\t Location of "+ parkingAgent.getName() + " is " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
+                                System.out.println(myAgent.getName() + consoleIndentation + "Location of "+ parkingAgent.getName() + " is " + Arrays.toString(parkingAgentLocations.get(parkingAgent)));
                             }
                             step = 2;
                             isUpdateListOfParkingsDone = true;
@@ -142,7 +143,7 @@ public class CarAgent extends Agent {
 
                         cfp.setConversationId("offer-place");
                         cfp.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value.
-                        System.out.println(myAgent.getName() + ": \t\t Sent CFP to parking agents. Waiting for replies...");
+                        System.out.println(myAgent.getName() + consoleIndentation + "Sent CFP to parking agents. Waiting for replies...");
                         myAgent.send(cfp);
 
 
@@ -185,23 +186,23 @@ public class CarAgent extends Agent {
                             if (repliesCnt >= parkingAgents.length) {
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
-                                        System.out.println(myAgent.getName()+ ": \t\t Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
+                                        System.out.println(myAgent.getName()+ consoleIndentation + "Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is available for reservation.");
                                     } else {
-                                        System.out.println(myAgent.getName()+ ": \t\t Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
+                                        System.out.println(myAgent.getName()+ consoleIndentation + "Location "+ parkingAgent.getName() +" " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
                                 if (shortestDistance != 0) {
                                     /**
                                      * TODO: parking location equal to car location
                                      */
-                                    System.out.println(myAgent.getName() + ": \t\t Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
+                                    System.out.println(myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is " + shortestDistance);
                                 } else {
                                     /**
                                      * TODO: start again from step = 0
                                      */
 //                                    step = 0;
 //                                    break;
-                                    System.out.println(myAgent.getName() + ":\t\t No parking available for reservation");
+                                    System.out.println(myAgent.getName() + consoleIndentation + "No parking available for reservation");
                                     step = 4;
                                 }
                                 //All replies received.
@@ -236,11 +237,11 @@ public class CarAgent extends Agent {
                                 // Reservation successful.
                                 parkingTarget = reply.getSender();
                                 isCallForParkingOffersDone = true;
-                                System.out.println(myAgent.getName() + ": \t\t Place reserved at:" + parkingTarget.getName());
+                                System.out.println(myAgent.getName() + consoleIndentation + "Place reserved at:" + parkingTarget.getName());
 
                             } else {
                                 //Reservation failed.
-                                System.out.println(myAgent.getName() + ": \t\t Failure. Parking is occupied.");
+                                System.out.println(myAgent.getName() + consoleIndentation +"Failure. Parking is occupied.");
                             }
                             step = 4;
                         } else {
@@ -276,7 +277,7 @@ public class CarAgent extends Agent {
                         msg.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                         msg.setContent("My ID " + myAgent.getAID() + " . My parking: " + parkingTarget);
 
-                        System.out.println(myAgent.getName() + "\t\t Sent reservation info to " + parkingTarget.getName());
+                        System.out.println(myAgent.getName() + consoleIndentation + "Sent reservation info to " + parkingTarget.getName());
                         myAgent.send(msg);
                         isApproacher = true;
 
@@ -325,7 +326,7 @@ public class CarAgent extends Agent {
                         cancel.addReceiver(parkingTarget);
                         cancel.setConversationId("cancel-reservation");
                         cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
-                        System.out.println(myAgent.getName()+  ":\t\t Sent CANCEL to target parking.");
+                        System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking.");
                         myAgent.send(cancel);
 
                         //Prepare the template to get proposals.
@@ -341,7 +342,7 @@ public class CarAgent extends Agent {
                                 // Reservation successful.
                                 isCallForParkingOffersDone = false;
                                 hasCarTracker = false;
-                                System.out.println(myAgent.getName()+ ":\t\t Reservation cancelled.");
+                                System.out.println(myAgent.getName()+ consoleIndentation + "Reservation cancelled.");
                                 step = 2;
                             }
                         } else {
@@ -366,7 +367,7 @@ public class CarAgent extends Agent {
             if (isApproacher) {
                 if (msg != null) {
                     hasCarTracker = true;
-                    System.out.println(myAgent.getName() + "\t\t" + parkingTarget.getName() + "has subscribed for info about my location");
+                    System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
                 } else {
                     block();
                 }
@@ -389,7 +390,7 @@ public class CarAgent extends Agent {
                     inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                     inform.setContent(Arrays.toString(agentLocation));
                     oldAgentLocation = agentLocation; //update oldAgentLocation
-                    System.out.println(myAgent.getName() + "\t\tSent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
+                    System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
                     myAgent.send(inform);
                 } else {
                     block();

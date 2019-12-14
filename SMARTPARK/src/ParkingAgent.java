@@ -16,6 +16,8 @@ public class ParkingAgent extends Agent {
 
     private Map<AID, int[]> carAgentLocations = new HashMap<>();
 
+    public static String consoleIndentation = "\t\t";
+
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
@@ -53,7 +55,7 @@ public class ParkingAgent extends Agent {
                 reply.setPerformative(ACLMessage.INFORM);
                 reply.setContent(Arrays.toString(location));
 
-                System.out.println(myAgent.getName() + ":\t Sent reply with location to car agent.");
+                System.out.println(myAgent.getName() + consoleIndentation + "Sent reply with location to car agent.");
                 myAgent.send(reply);
             } else {
                 // This method marks the behaviour as "blocked" so that agent does not
@@ -82,7 +84,7 @@ public class ParkingAgent extends Agent {
                     reply.setContent("not-available");
                 }
 
-                System.out.println(myAgent.getName()+  ":\t Sent reply with information about availability");
+                System.out.println(myAgent.getName()+ consoleIndentation + "Sent reply with information about availability");
                 myAgent.send(reply);
             } else {
                 block();
@@ -109,7 +111,7 @@ public class ParkingAgent extends Agent {
                     reply.setPerformative(ACLMessage.FAILURE);
                 }
 
-                System.out.println(myAgent.getName() + ":\t Sent reply with information about reservation.");
+                System.out.println(myAgent.getName() + consoleIndentation + "Sent reply with information about reservation.");
                 myAgent.send(reply);
             } else {
                 block();
@@ -131,7 +133,7 @@ public class ParkingAgent extends Agent {
                 reply.setPerformative(ACLMessage.CONFIRM);
                 isFree = true;
 
-                System.out.println(myAgent.getName()+  ":\t Send info about cancelling the reservation. This place is available for further customers");
+                System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. This place is available for further customers");
                 myAgent.send(reply);
             } else {
                 block();
@@ -151,7 +153,7 @@ public class ParkingAgent extends Agent {
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.CONFIRM);
-                System.out.println(myAgent.getName() + ":\t Got reservation info from " + client_name);
+                System.out.println(myAgent.getName() + consoleIndentation + "Got reservation info from " + client_name);
                 myAgent.send(reply);
 
                 /**
@@ -166,7 +168,7 @@ public class ParkingAgent extends Agent {
                 carAgentLocations.put(client_ID, null);
 
                 sub.setContent("I, parking " + myAgent.getAID().getName() + " added " + client_name + " to track Car.");
-                System.out.println(myAgent.getName() + ":\t I am tracking now " + client_name);
+                System.out.println(myAgent.getName() + consoleIndentation + "I am tracking now " + client_name);
 
                 myAgent.send(sub);
             } else {
@@ -186,9 +188,9 @@ public class ParkingAgent extends Agent {
                 int[] carLocation = parseLocation(msg.getContent());
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
-                    System.out.println(myAgent.getName() + ":\t Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
+                    System.out.println(myAgent.getName() + consoleIndentation + "Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
                 } else {
-                    System.out.println(myAgent.getName() + ":\t Received information from car we do not track, ignore it.");
+                    System.out.println(myAgent.getName() + consoleIndentation + "Received information from car we do not track, ignore it.");
                 }
             } else {
                 block();
