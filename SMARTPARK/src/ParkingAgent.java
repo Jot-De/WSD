@@ -11,7 +11,7 @@ import static utils.agentUtils.*;
 public class ParkingAgent extends Agent {
 
     private int[] location;
-    private int freeParkingSlots = 1;
+    private int freeParkingSlots = 2;
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 

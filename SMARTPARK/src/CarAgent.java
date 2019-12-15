@@ -6,12 +6,13 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static utils.agentUtils.calculateDistance;
-import static utils.agentUtils.parseLocation;
+import static utils.MapState.calculatePathBFS;
+import static utils.agentUtils.*;
 
 public class CarAgent extends Agent {
 
@@ -31,6 +32,7 @@ public class CarAgent extends Agent {
     private boolean isApproacher = false;
 
     private AID parkingTarget;
+    private ArrayList<int[]> pathToParking;
 
     private boolean hasCarTracker = false;
 
@@ -39,6 +41,8 @@ public class CarAgent extends Agent {
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
+
+        agentLocation = initializeParkingLocation();
 
         addBehaviour(new sendReservationInfo());
         addBehaviour(new UpdateListOfParkings());
@@ -312,6 +316,10 @@ public class CarAgent extends Agent {
             if (isApproacher && !hasCarTracker) {
                 if (msg != null) {
                     hasCarTracker = true;
+                    pathToParking = calculatePathBFS(agentLocation, parkingAgentLocations.get(parkingTarget));
+//                    for (int[] path : pathToParking) {
+//                        System.out.println(Arrays.toString(path));
+//                    }
                     System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
                 } else {
                     block();
@@ -327,9 +335,11 @@ public class CarAgent extends Agent {
     private class SendLocationInfo extends Behaviour {
 
         public void action() {
-            // TODO: make the car move.
-            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
-            if (hasCarTracker && carHasMoved) {
+//            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
+            if (hasCarTracker) {
+                if (pathToParking.size() > 0) {
+                    agentLocation = pathToParking.remove(0);
+                }
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
                 inform.addReceiver(parkingTarget);
@@ -384,6 +394,7 @@ public class CarAgent extends Agent {
                                 hasCarTracker = false;
                                 parkingTarget = null;
                                 isApproacher = false;
+                                pathToParking = null;
                                 System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled.");
                                 step = 2;
                             }
