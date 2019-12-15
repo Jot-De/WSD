@@ -32,13 +32,13 @@ public class MapState {
 //        }
 //    }
 
-    private static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
+    public static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
 
         fillMapWithRoads();
 
         ArrayList<int[]> visitedTiles = new ArrayList<>();
-        int[] sourceTilePosition = {source[0], source[1]};
-        visitedTiles.add(sourceTilePosition);
+//        int[] sourceTilePosition = {source[0], source[1]};
+//        visitedTiles.add();
         Tile sourceTile = new Tile(source[0], source[1], visitedTiles);
         Queue<Tile> queue = new LinkedList<Tile>();
 
