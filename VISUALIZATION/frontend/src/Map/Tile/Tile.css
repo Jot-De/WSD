@@ -1,0 +1,14 @@
+.tile {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  outline: 1px solid rgb(175, 216, 248);
+}
+
+.parking {
+  background: red;
+}
+
+.car {
+  background: blue;
+}
