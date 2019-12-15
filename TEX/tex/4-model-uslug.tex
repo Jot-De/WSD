@@ -313,17 +313,7 @@ Na rysunku \ref{fig:interaction} przedstawiającym model interakcji widać, że 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\subsection{Model agentów}
-
-\begin{figure}[h!]
-    \centering \includegraphics[width=1.0\linewidth]{agentmodel.png}
-    \caption{Model agentów.}
-    \label{fig:agentmodel}
-\end{figure}
-
-Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów można stwierdzić, że oba rodzaje agentów  występujących w systemie są złożone w kontekście zaimplementowanych w nich ról. ParkingAgent posiada nieco większe skomplikowanie z uwagi na bardziej odpowiedzialną rolę jaką pełni w systemie, ponieważ to agenty-parkingi zarządzają agentami-pojazdami jednocześnie spełniając ich prośby. System nie może istnieć bez żadnej instancji ParkingAgent, ponieważ CarAgent w roli klienta nie mógłby wchodzić w interakcje i w rezultacie zaparkować. Natomiast można wyobrazić sobie istnienie systemu z instancjami ParkingAgent’a bez drugiego rodzaju agentów występujących w systemie.
-
-\newpage
+\subsection{Definicje protokołów}
 \subsubsection{Map Parkings}
 \begin{table}[h]
     \centering
@@ -485,6 +475,18 @@ Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów 
     \end{table}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \newpage
+    \subsection{Model agentów}
+    
+    \begin{figure}[h!]
+        \centering \includegraphics[width=1.0\linewidth]{agentmodel.png}
+        \caption{Model agentów.}
+        \label{fig:agentmodel}
+    \end{figure}
+    
+    Na podstawie powyższych schematów (Rys. \ref{fig:agentmodel}) modeli agentów można stwierdzić, że oba rodzaje agentów  występujących w systemie są złożone w kontekście zaimplementowanych w nich ról. ParkingAgent posiada nieco większe skomplikowanie z uwagi na bardziej odpowiedzialną rolę jaką pełni w systemie, ponieważ to agenty-parkingi zarządzają agentami-pojazdami jednocześnie spełniając ich prośby. System nie może istnieć bez żadnej instancji ParkingAgent, ponieważ CarAgent w roli klienta nie mógłby wchodzić w interakcje i w rezultacie zaparkować. Natomiast można wyobrazić sobie istnienie systemu z instancjami ParkingAgent’a bez drugiego rodzaju agentów występujących w systemie.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
