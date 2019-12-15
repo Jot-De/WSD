@@ -18,7 +18,6 @@ public class CarAgent extends Agent {
 
     //Agent's location.
     private int[] agentLocation = {0, 0};
-    private int[] oldAgentLocation = {-1, -1};
 
     private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
     // List of other agents in the container.
@@ -38,18 +37,19 @@ public class CarAgent extends Agent {
 
     private static String consoleIndentation = "\t\t\t";
 
+    private boolean isConnectedToDatabase = false;
+
     protected void setup() {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
-
-        System.out.println(getAID().toString());
 
         agentLocation = initializeParkingLocation();
         // Send position to the middleware server.
         try {
             sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+            isConnectedToDatabase = true;
         } catch (Exception e) {
-            System.out.println("ERROR");
+            System.out.println("Database ERROR");
         }
 
         addBehaviour(new sendReservationInfo());
@@ -77,10 +77,12 @@ public class CarAgent extends Agent {
     protected void takeDown() {
         freeParkingLocation(agentLocation);
         System.out.println("Car-agent " + getAID().getName() + " terminating.");
-        try {
-            removeAgentFromDatabase(getAID().getName());
-        } catch (Exception e) {
-            System.out.println("ERROR");
+        if (isConnectedToDatabase) {
+            try {
+                removeAgentFromDatabase(getAID().getName());
+            } catch (Exception e) {
+                System.out.println("Database ERROR");
+            }
         }
     }
 
@@ -385,10 +387,12 @@ public class CarAgent extends Agent {
 //                }
                 if (pathToParking.size() > 0) {
                     agentLocation = pathToParking.remove(0);
-                    try {
-                        sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
-                    } catch (Exception e) {
-                        System.out.println("ERROR");
+                    if (isConnectedToDatabase) {
+                        try {
+                            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+                        } catch (Exception e) {
+                            System.out.println("Database ERROR");
+                        }
                     }
                 }
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
@@ -397,7 +401,6 @@ public class CarAgent extends Agent {
                 inform.setConversationId("send-location-info");
                 inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                 inform.setContent(Arrays.toString(agentLocation));
-                oldAgentLocation = agentLocation; //update oldAgentLocation
 //                System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
                 myAgent.send(inform);
             } else {

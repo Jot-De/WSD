@@ -23,6 +23,8 @@ public class ParkingAgent extends Agent {
 
     public static String consoleIndentation = "\t\t";
 
+    private boolean isConnectedToDatabase = false;
+
     private void decreaseFreeParkingSlotValue() {
         if (freeParkingSlots > 0) {
             freeParkingSlots--;
@@ -55,8 +57,9 @@ public class ParkingAgent extends Agent {
         // Send position to the middleware server.
         try {
             sendData(getAID().getName(), "parking", Arrays.toString(location));
+            isConnectedToDatabase = true;
         } catch (Exception e) {
-            System.out.println("ERROR");
+            System.out.println("Database ERROR");
         }
 
         addBehaviour(new SendCoordinates());
@@ -70,10 +73,12 @@ public class ParkingAgent extends Agent {
     protected void takeDown() {
         freeParkingLocation(location);
         System.out.println("Parking-agent " + getAID().getName() + " terminating.");
-        try {
-            removeAgentFromDatabase(getAID().getName());
-        } catch (Exception e) {
-            System.out.println("ERROR");
+        if (isConnectedToDatabase) {
+            try {
+                removeAgentFromDatabase(getAID().getName());
+            } catch (Exception e) {
+                System.out.println("Database ERROR");
+            }
         }
     }
 
