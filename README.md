@@ -25,3 +25,4 @@ Project for Multiagent Systems course on WEITI PW
 1. Run backend
 2. Run frontend
 3. Run SMARTPARK
+OR just run SMARTPARK
