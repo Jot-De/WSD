@@ -4,8 +4,7 @@ import "./Tile.css";
 
 class Tile extends React.Component {
   render() {
-    const { name, type, location } = this.props;
-    console.log(type);
+    const { type } = this.props;
     return <div className={`tile ${type}`}> </div>;
   }
 }

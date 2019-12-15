@@ -2,6 +2,7 @@ package utils;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -74,20 +75,29 @@ public class agentUtils {
      */
     public static void sendData(String name, String type, String location) throws ClientProtocolException, IOException {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:3000/update-agent");
+        HttpPost httpPost = new HttpPost("http://localhost:3000/agent");
 
         String json = "{\"name\":\"" + name + "\",";
         json += "\"type\":\"" + type + "\",";
         json += "\"location\":\"" + location + "\"}";
 
-//        String json = "{\"name\":\"parking1\",\"type\":\"parking\",\"location\":\"[0,1]\"}";
-        System.out.println(json);
         StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
 
         CloseableHttpResponse response = client.execute(httpPost);
+        client.close();
+    }
+
+    public static void removeAgentFromDatabase(String name) throws ClientProtocolException, IOException {
+        System.out.println("trying to delete agent");
+        CloseableHttpClient client = HttpClients.createDefault();
+        String escapedName = name.replaceAll("/", "%2F");
+        String url = "http://localhost:3000/agent/" + escapedName;
+        HttpDelete httpDelete = new HttpDelete(url);
+
+        CloseableHttpResponse response = client.execute(httpDelete);
         client.close();
     }
 

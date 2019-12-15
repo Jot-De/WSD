@@ -24,7 +24,7 @@ public class CarAgent extends Agent {
     // List of other agents in the container.
     private AID[] parkingAgents = {
             new AID("parking1", AID.ISLOCALNAME),
-            new AID("parking2", AID.ISLOCALNAME)
+//            new AID("parking2", AID.ISLOCALNAME)
     };
 
     private boolean isUpdateListOfParkingsDone = false;
@@ -42,24 +42,46 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
+        System.out.println(getAID().toString());
+
         agentLocation = initializeParkingLocation();
+        // Send position to the middleware server.
+        try {
+            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+        } catch (Exception e) {
+            System.out.println("ERROR");
+        }
 
         addBehaviour(new sendReservationInfo());
         addBehaviour(new UpdateListOfParkings());
         addBehaviour(new CallForParkingOffers());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
         // Add a TickerBehaviour that sends location to car tracker every 5 seconds.
-        addBehaviour(new TickerBehaviour(this, 5000) {
+        addBehaviour(new TickerBehaviour(this, 1000) {
             @Override
             protected void onTick() {
                 myAgent.addBehaviour(new SendLocationInfo());
             }
         });
+        addBehaviour(new TickerBehaviour(this, 1000) {
+            @Override
+            protected void onTick() {
+                myAgent.addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
+            }
+        });
+//        addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
+//
 //        addBehaviour(new CancelClientReservation());
     }
 
     protected void takeDown() {
+        freeParkingLocation(agentLocation);
         System.out.println("Car-agent " + getAID().getName() + " terminating.");
+        try {
+            removeAgentFromDatabase(getAID().getName());
+        } catch (Exception e) {
+            System.out.println("ERROR");
+        }
     }
 
     /**
@@ -328,6 +350,24 @@ public class CarAgent extends Agent {
         }
     }
 
+    private class ListenForLocationCancelSubscriptionFromCarTracker extends Behaviour {
+
+        public void action() {
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL), MessageTemplate.MatchConversationId("send-subscription-cancel"));
+            ACLMessage msg = myAgent.receive(mt);
+            if (hasCarTracker && msg != null) {
+                hasCarTracker = false;
+                System.out.println(myAgent.getName() + consoleIndentation + "Received Cancel Subscription info from + " + parkingTarget.getName() + ". I stopped sending info...");
+            } else {
+                block();
+            }
+        }
+
+        public boolean done() {
+            return true;
+        }
+    }
+
     /**
      * Send information about our current location to the car tracker.
      * Part of TrackCar protocol.
@@ -337,8 +377,19 @@ public class CarAgent extends Agent {
         public void action() {
 //            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
             if (hasCarTracker) {
+                int[] parkingLocation = parkingAgentLocations.get(parkingTarget);
+//                System.out.println(Arrays.toString(parkingLocation));
+//                if (agentLocation[0] == parkingLocation[0] && agentLocation[1] == parkingLocation[1] ) {
+//                    myAgent.addBehaviour(new CancelClientReservation());
+//                    return;
+//                }
                 if (pathToParking.size() > 0) {
                     agentLocation = pathToParking.remove(0);
+                    try {
+                        sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+                    } catch (Exception e) {
+                        System.out.println("ERROR");
+                    }
                 }
                 ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
 
@@ -347,7 +398,7 @@ public class CarAgent extends Agent {
                 inform.setReplyWith("inform" + System.currentTimeMillis()); // Unique value.
                 inform.setContent(Arrays.toString(agentLocation));
                 oldAgentLocation = agentLocation; //update oldAgentLocation
-                System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
+//                System.out.println(myAgent.getName() + consoleIndentation + "Sent my location: " + Arrays.toString(oldAgentLocation) + " to " + parkingTarget.getName());
                 myAgent.send(inform);
             } else {
                 block();

@@ -12,33 +12,12 @@ public class MapState {
             }
         }
     }
-//
-//    public static void main(String args[]) {
-//        fillMapWithRoads();
-//        int[][] matrix = {
-//            {1, 1, 0, 1},
-//            {1, 0, 0, 1},
-//            {1, 0, 0, 1},
-//            {1, 1, 1, 1}
-//        };
-//
-//        int[] source = {1, 5};
-//        int[] target = {7, 4};
-//
-//        ArrayList<int[]> path = calculatePathBFS(source, target, map);
-//
-//        for (int[] location : path) {
-//            System.out.println(Arrays.toString(location));
-//        }
-//    }
 
     public static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
 
         fillMapWithRoads();
 
         ArrayList<int[]> visitedTiles = new ArrayList<>();
-//        int[] sourceTilePosition = {source[0], source[1]};
-//        visitedTiles.add();
         Tile sourceTile = new Tile(source[0], source[1], visitedTiles);
         Queue<Tile> queue = new LinkedList<Tile>();
 

@@ -15,7 +15,7 @@ import static utils.agentUtils.*;
 public class ParkingAgent extends Agent {
 
     private int[] location;
-    private int freeParkingSlots = 2;
+    private int freeParkingSlots = 3;
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
 
@@ -70,6 +70,11 @@ public class ParkingAgent extends Agent {
     protected void takeDown() {
         freeParkingLocation(location);
         System.out.println("Parking-agent " + getAID().getName() + " terminating.");
+        try {
+            removeAgentFromDatabase(getAID().getName());
+        } catch (Exception e) {
+            System.out.println("ERROR");
+        }
     }
 
 
@@ -208,6 +213,13 @@ public class ParkingAgent extends Agent {
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
                     System.out.println(myAgent.getName() + consoleIndentation + "Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
+                    if (carLocation[0] == location[0] && carLocation[1] == location[1]) {
+                        // Cancel communication if car arrived at the parking.
+                        ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
+                        cancel.setConversationId("send-subscription-cancel");
+                        cancel.addReceiver(client_ID);
+                        myAgent.send(cancel);
+                    }
                 } else {
                     System.out.println(myAgent.getName() + consoleIndentation + "Received information from car we do not track, ignore it.");
                 }

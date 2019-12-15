@@ -22,23 +22,21 @@ class Map extends React.Component {
     const hookURL = this.hookURL;
     const socket = socketIOClient(hookURL);
     socket.on("update", agents => {
-      this.setState({ agents: agents }, this.updateAgents);
-      console.log(this.state.agents);
+      this.updateBoard(true);
+      this.setState({ agents: agents }, this.updateBoard);
     });
 
     const grid = getInitialGrid();
     this.setState({ grid });
   }
 
-  updateAgents = () => {
+  updateBoard = (clearData = false) => {
+    const grid = this.state.grid;
     const agents = this.state.agents;
-    console.log(agents);
-    const grid = this.state.grid.slice();
-
     agents.forEach(agent => {
       // FIXME: Please don't parse string to array here.
       const [row, col] = agent[1].location.match(/\d+/g);
-      const type = agent[1].type;
+      const type = clearData ? "none" : agent[1].type;
 
       const tile = grid[row][col];
       const newTile = {

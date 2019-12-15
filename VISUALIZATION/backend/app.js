@@ -14,7 +14,7 @@ const currentState = {};
 /**
  * Parse data for frontend.
  */
-const parseData = () => Object.entries(currentState);
+const parseData = () => Object.entries(currentState).sort();
 
 /**
  * Send data to the frontend using socket emit.
@@ -29,14 +29,19 @@ const sendData = () => {
 io.on("connection", () => {
   if (currentState) io.emit("update", parseData());
 });
-
 /**
  * Endpoint that let agents update its state.
  */
-app.post("/update-agent", (req, res) => {
-  console.log(req.body);
+app.post("/agent", (req, res) => {
   const { name, type, location } = req.body;
   currentState[name] = { type, location };
+
+  sendData();
+  res.sendStatus(200);
+});
+
+app.delete("/agent/:name", (req, res) => {
+  delete currentState[req.params.name];
 
   sendData();
   res.sendStatus(200);
