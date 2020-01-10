@@ -3,7 +3,7 @@ package utils;
 import java.util.*;
 
 public class MapState {
-    public static int[][] grid = new int[11][11];
+    public static int[][] grid = new int[20][20];
 
     public static void fillMapWithRoads() {
         for (int i = 0; i < grid.length; i++) {
