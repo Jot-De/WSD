@@ -1,6 +1,7 @@
 :root {
   --font-size: 25px;
   --grass-color: rgb(119, 189, 119);
+  --road-color: gray;
 }
 
 .tile {
@@ -14,30 +15,34 @@
   background: var(--grass-color);
 }
 
-.grass::after {
+.road {
+  background: var(--road-color);
+}
+
+.tree1::after {
   content: '🌲';
   font-size: var(--font-size);
 }
 
-.road {
-  background: gray;
+.house::after {
+  content: '🏘';
+  font-size: var(--font-size);
 }
 
-
-.parking {
-  background: var(--grass-color);
+.tree2::after {
+  content: '🌳';
+  font-size: var(--font-size);
 }
 
-.parking::after {
-  content: '🅿️';
+.tulip::after {
+  content: '🌷';
   font-size: var(--font-size);
 }
 
 
-
-.car {
-  background: gray;
-  /* background: blue; */
+.parking::after {
+  content: '🅿️';
+  font-size: var(--font-size);
 }
 
 .car::after {

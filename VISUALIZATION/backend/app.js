@@ -29,12 +29,13 @@ const sendData = () => {
 io.on("connection", () => {
   if (currentState) io.emit("update", parseData());
 });
+
 /**
  * Endpoint that let agents update its state.
  */
 app.post("/agent", (req, res) => {
-  const { name, type, location } = req.body;
-  currentState[name] = { type, location };
+  const { name, type, location, freeSlots } = req.body;
+  currentState[name] = { type, location, freeSlots };
 
   sendData();
   res.sendStatus(200);

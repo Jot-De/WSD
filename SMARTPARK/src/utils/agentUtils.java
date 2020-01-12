@@ -114,12 +114,30 @@ public class agentUtils {
      * @throws ClientProtocolException
      * @throws IOException
      */
-    public static void sendData(String name, String type, String location) throws ClientProtocolException, IOException {
+    public static void sendCarData(String name, String type, String location) throws ClientProtocolException, IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://localhost:3000/agent");
 
         String json = "{\"name\":\"" + name + "\",";
         json += "\"type\":\"" + type + "\",";
+        json += "\"location\":\"" + location + "\"}";
+
+        StringEntity entity = new StringEntity(json);
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+        client.close();
+    }
+
+    public static void sendParkingData(String name, String type, String location, String freeSlots) throws ClientProtocolException, IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("http://localhost:3000/agent");
+
+        String json = "{\"name\":\"" + name + "\",";
+        json += "\"type\":\"" + type + "\",";
+        json += "\"freeSlots\":\"" + freeSlots + "\",";
         json += "\"location\":\"" + location + "\"}";
 
         StringEntity entity = new StringEntity(json);

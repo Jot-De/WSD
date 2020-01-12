@@ -47,7 +47,7 @@ public class CarAgent extends Agent {
         agentLocation = initializeCarLocation();
         // Send position to the middleware server.
         try {
-            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+            sendCarData(getAID().getName(), "car", Arrays.toString(agentLocation));
             isConnectedToDatabase = true;
         } catch (Exception e) {
             System.out.println("Database ERROR");
@@ -58,13 +58,13 @@ public class CarAgent extends Agent {
         addBehaviour(new CallForParkingOffers());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
         // Add a TickerBehaviour that sends location to car tracker every 5 seconds.
-        addBehaviour(new TickerBehaviour(this, 1000) {
+        addBehaviour(new TickerBehaviour(this, 2000) {
             @Override
             protected void onTick() {
                 myAgent.addBehaviour(new SendLocationInfo());
             }
         });
-        addBehaviour(new TickerBehaviour(this, 1000) {
+        addBehaviour(new TickerBehaviour(this, 2000) {
             @Override
             protected void onTick() {
                 myAgent.addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
@@ -390,7 +390,7 @@ public class CarAgent extends Agent {
                     agentLocation = pathToParking.remove(0);
                     if (isConnectedToDatabase) {
                         try {
-                            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+                            sendCarData(getAID().getName(), "car", Arrays.toString(agentLocation));
                         } catch (Exception e) {
                             System.out.println("Database ERROR");
                         }

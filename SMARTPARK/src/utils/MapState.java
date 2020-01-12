@@ -6,6 +6,7 @@ import static utils.agentUtils.possibleParkingLocations;
 
 public class MapState {
     public static int[][] grid = new int[21][41];
+    public static boolean isGridInitialized = false;
 
     public static void fillMapWithRoads() {
         for (int i = 0; i < grid.length; i++) {
@@ -19,14 +20,16 @@ public class MapState {
         }
 
         possibleParkingLocations.forEach((key, value) -> {
-            System.out.println("Parking location" + Arrays.toString(key));
             grid[key[0]][key[1]] = 1;
         });
     }
 
     public static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
 
-        fillMapWithRoads();
+        if (!isGridInitialized) {
+            fillMapWithRoads();
+            isGridInitialized = true;
+        }
 
         ArrayList<int[]> visitedTiles = new ArrayList<>();
         Tile sourceTile = new Tile(source[0], source[1], visitedTiles);
