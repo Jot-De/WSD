@@ -53,6 +53,8 @@ public class ParkingAgent extends Agent {
 
         location = initializeParkingLocation();
 
+        System.out.println(Arrays.toString(location));
+
 
         // Send position to the middleware server.
         try {

@@ -2,15 +2,26 @@ package utils;
 
 import java.util.*;
 
+import static utils.agentUtils.possibleParkingLocations;
+
 public class MapState {
-    public static int[][] grid = new int[20][20];
+    public static int[][] grid = new int[21][41];
 
     public static void fillMapWithRoads() {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                grid[i][j] = 1;
+                if (i % 5 == 0 || j % 5 == 0) {
+                    grid[i][j] = 1;
+                } else {
+                    grid[i][j] = 0;
+                }
             }
         }
+
+        possibleParkingLocations.forEach((key, value) -> {
+            System.out.println("Parking location" + Arrays.toString(key));
+            grid[key[0]][key[1]] = 1;
+        });
     }
 
     public static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
@@ -67,7 +78,7 @@ public class MapState {
             currentArrayList.add(pos);
             unvisitedNeighbours.add(new Tile(current.i-1, current.j, currentArrayList));
         }
-        if(current.i+1 < matrix[0].length && visited[current.i+1][current.j] != 0) {
+        if(current.i+1 < matrix.length && visited[current.i+1][current.j] != 0) {
             int[] pos = {current.i+1, current.j};
             ArrayList<int[]> currentArrayList = new ArrayList<int[]>(current.visitedTiles);
             currentArrayList.add(pos);
@@ -79,7 +90,7 @@ public class MapState {
             currentArrayList.add(pos);
             unvisitedNeighbours.add(new Tile(current.i, current.j-1, currentArrayList));
         }
-        if(current.j+1 < matrix.length && visited[current.i][current.j+1] != 0) {
+        if(current.j+1 < matrix[0].length && visited[current.i][current.j+1] != 0) {
             int[] pos = {current.i, current.j+1};
             ArrayList<int[]> currentArrayList = new ArrayList<int[]>(current.visitedTiles);
             currentArrayList.add(pos);

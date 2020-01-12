@@ -1,14 +1,46 @@
+:root {
+  --font-size: 25px;
+  --grass-color: rgb(119, 189, 119);
+}
+
 .tile {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  outline: 1px solid rgb(175, 216, 248);
+  width: 4vh;
+  height: 4vh;
+  outline: 1px solid rgb(0, 0, 0);
 }
+
+.grass {
+  background: var(--grass-color);
+}
+
+.grass::after {
+  content: '🌲';
+  font-size: var(--font-size);
+}
+
+.road {
+  background: gray;
+}
+
 
 .parking {
-  background: red;
+  background: var(--grass-color);
 }
 
+.parking::after {
+  content: '🅿️';
+  font-size: var(--font-size);
+}
+
+
+
 .car {
-  background: blue;
+  background: gray;
+  /* background: blue; */
+}
+
+.car::after {
+  content: '🚔';
+  font-size: var(--font-size);
 }

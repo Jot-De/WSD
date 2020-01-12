@@ -10,11 +10,7 @@ class Map extends React.Component {
     this.hookURL = "http://localhost:3000";
     this.state = {
       grid: [],
-      agents: [
-        ["car1", { type: "car", location: "[0, 1]" }],
-        ["car2", { type: "car", location: "[0, 5]" }],
-        ["parking1", { type: "parking", location: "[2, 10]" }]
-      ]
+      agents: []
     };
   }
 
@@ -23,11 +19,14 @@ class Map extends React.Component {
     const socket = socketIOClient(hookURL);
     socket.on("update", agents => {
       this.updateBoard(true);
+      console.log(agents);
       this.setState({ agents: agents }, this.updateBoard);
+      if (Object.keys(this.state.agents).length === 0) {
+        this.initializeGrid();
+      }
     });
 
-    const grid = getInitialGrid();
-    this.setState({ grid });
+    this.initializeGrid();
   }
 
   updateBoard = (clearData = false) => {
@@ -36,12 +35,12 @@ class Map extends React.Component {
     agents.forEach(agent => {
       // FIXME: Please don't parse string to array here.
       const [row, col] = agent[1].location.match(/\d+/g);
-      const type = clearData ? "none" : agent[1].type;
 
       const tile = grid[row][col];
       const newTile = {
         ...tile,
-        type: type
+        oldType: tile.type,
+        type: clearData ? tile.oldType : agent[1].type
       };
       grid[row][col] = newTile;
     });
@@ -70,26 +69,36 @@ class Map extends React.Component {
       </div>
     );
   }
+
+  initializeGrid = () => {
+    const grid = getInitialGrid();
+    this.setState({ grid });
+  };
 }
 
 const getInitialGrid = () => {
   const grid = [];
-  for (let row = 0; row < 20; row++) {
+  for (let row = 0; row < 21; row++) {
     const currentRow = [];
-    for (let col = 0; col < 20; col++) {
-      currentRow.push(createNode(col, row));
+    for (let col = 0; col < 41; col++) {
+      if (row % 5 === 0 || col % 5 === 0)
+        currentRow.push(createNode(col, row, "road"));
+      else currentRow.push(createNode(col, row, "grass"));
     }
     grid.push(currentRow);
   }
+  console.log(grid);
   return grid;
 };
 
-const createNode = (col, row) => {
-  return {
+const createNode = (col, row, type) => {
+  const node = {
     col,
     row,
-    type: "none"
+    oldType: type,
+    type
   };
+  return node;
 };
 
 export default Map;

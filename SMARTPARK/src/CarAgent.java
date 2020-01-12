@@ -23,7 +23,7 @@ public class CarAgent extends Agent {
     // List of other agents in the container.
     private AID[] parkingAgents = {
             new AID("parking1", AID.ISLOCALNAME),
-//            new AID("parking2", AID.ISLOCALNAME)
+            new AID("parking2", AID.ISLOCALNAME)
     };
 
     private boolean isUpdateListOfParkingsDone = false;
@@ -43,7 +43,8 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
-        agentLocation = initializeParkingLocation();
+//        agentLocation = initializeParkingLocation();
+        agentLocation = initializeCarLocation();
         // Send position to the middleware server.
         try {
             sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
@@ -75,7 +76,7 @@ public class CarAgent extends Agent {
     }
 
     protected void takeDown() {
-        freeParkingLocation(agentLocation);
+        freeCarLocation(agentLocation);
         System.out.println("Car-agent " + getAID().getName() + " terminating.");
         if (isConnectedToDatabase) {
             try {
