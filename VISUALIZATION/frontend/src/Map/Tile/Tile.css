@@ -1,14 +1,51 @@
+:root {
+  --font-size: 25px;
+  --grass-color: rgb(119, 189, 119);
+  --road-color: gray;
+}
+
 .tile {
   flex-shrink: 0;
-  width: 50px;
-  height: 50px;
-  outline: 1px solid rgb(175, 216, 248);
+  width: 4vh;
+  height: 4vh;
+  outline: 1px solid rgb(0, 0, 0);
 }
 
-.parking {
-  background: red;
+.grass {
+  background: var(--grass-color);
 }
 
-.car {
-  background: blue;
+.road {
+  background: var(--road-color);
+}
+
+.tree1::after {
+  content: '🌲';
+  font-size: var(--font-size);
+}
+
+.house::after {
+  content: '🏘';
+  font-size: var(--font-size);
+}
+
+.tree2::after {
+  content: '🌳';
+  font-size: var(--font-size);
+}
+
+.tulip::after {
+  content: '🌷';
+  font-size: var(--font-size);
+}
+
+
+.parking::after {
+  content: '🅿️';
+  font-size: var(--font-size);
+}
+
+.car::after {
+  content: '🚔';
+  font-size: var(--font-size);
 }

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static utils.MapState.calculatePathBFS;
+import static utils.MapState.calculatePathBFSLength;
 import static utils.agentUtils.*;
 
 public class CarAgent extends Agent {
@@ -23,7 +24,7 @@ public class CarAgent extends Agent {
     // List of other agents in the container.
     private AID[] parkingAgents = {
             new AID("parking1", AID.ISLOCALNAME),
-//            new AID("parking2", AID.ISLOCALNAME)
+            new AID("parking2", AID.ISLOCALNAME)
     };
 
     private boolean isUpdateListOfParkingsDone = false;
@@ -43,10 +44,11 @@ public class CarAgent extends Agent {
         // Print a welcome message.
         System.out.println("Hello " + getAID().getName() + " is ready.");
 
-        agentLocation = initializeParkingLocation();
+//        agentLocation = initializeParkingLocation();
+        agentLocation = initializeCarLocation();
         // Send position to the middleware server.
         try {
-            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+            sendCarData(getAID().getName(), "car", Arrays.toString(agentLocation));
             isConnectedToDatabase = true;
         } catch (Exception e) {
             System.out.println("Database ERROR");
@@ -57,13 +59,13 @@ public class CarAgent extends Agent {
         addBehaviour(new CallForParkingOffers());
         addBehaviour(new ListenForLocationSubscriptionFromCarTracker());
         // Add a TickerBehaviour that sends location to car tracker every 5 seconds.
-        addBehaviour(new TickerBehaviour(this, 1000) {
+        addBehaviour(new TickerBehaviour(this, 2000) {
             @Override
             protected void onTick() {
                 myAgent.addBehaviour(new SendLocationInfo());
             }
         });
-        addBehaviour(new TickerBehaviour(this, 1000) {
+        addBehaviour(new TickerBehaviour(this, 2000) {
             @Override
             protected void onTick() {
                 myAgent.addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
@@ -75,7 +77,7 @@ public class CarAgent extends Agent {
     }
 
     protected void takeDown() {
-        freeParkingLocation(agentLocation);
+        freeCarLocation(agentLocation);
         System.out.println("Car-agent " + getAID().getName() + " terminating.");
         if (isConnectedToDatabase) {
             try {
@@ -198,11 +200,11 @@ public class CarAgent extends Agent {
                             if (repliesCnt >= parkingAgents.length) {
 
                                 //Shortest path between car and parking.
-                                double shortestDistance = Double.MAX_VALUE;
+                                int shortestDistance = Integer.MAX_VALUE;
 
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
-                                        double distanceToParking = calculateDistance(agentLocation, parkingAgentLocations.get(parkingAgent));
+                                        int distanceToParking = calculatePathBFSLength(agentLocation, parkingAgentLocations.get(parkingAgent));
 
                                         if (distanceToParking < shortestDistance) {
                                             shortestDistance = distanceToParking;
@@ -213,9 +215,9 @@ public class CarAgent extends Agent {
                                         System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
-                                if (shortestDistance != Double.MAX_VALUE) {
+                                if (shortestDistance != Integer.MAX_VALUE) {
                                     step = 2;
-                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %.2f \n"), shortestDistance);
+                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %d \n"), shortestDistance);
                                 } else {
                                     // Repeat this behaviour from step 0.
                                     step = 0;
@@ -389,7 +391,7 @@ public class CarAgent extends Agent {
                     agentLocation = pathToParking.remove(0);
                     if (isConnectedToDatabase) {
                         try {
-                            sendData(getAID().getName(), "car", Arrays.toString(agentLocation));
+                            sendCarData(getAID().getName(), "car", Arrays.toString(agentLocation));
                         } catch (Exception e) {
                             System.out.println("Database ERROR");
                         }

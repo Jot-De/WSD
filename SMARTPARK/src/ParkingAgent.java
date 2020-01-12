@@ -4,10 +4,9 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.io.IOException;
 import java.util.Arrays;
 
-import static utils.agentUtils.sendData;
+import static utils.agentUtils.sendCarData;
 import java.util.*;
 
 import static utils.agentUtils.*;
@@ -33,11 +32,24 @@ public class ParkingAgent extends Agent {
         if (freeParkingSlots == 0) {
             isFree = false;
         }
+
+        try {
+            sendParkingData(getAID().getName(), "parking", Arrays.toString(location), Integer.toString(freeParkingSlots));
+            isConnectedToDatabase = true;
+        } catch (Exception e) {
+            System.out.println("Database ERROR");
+        }
     }
 
     private void increaseFreeParkingSlotValue() {
         freeParkingSlots++;
         isFree = true;
+        try {
+            sendParkingData(getAID().getName(), "parking", Arrays.toString(location), Integer.toString(freeParkingSlots));
+            isConnectedToDatabase = true;
+        } catch (Exception e) {
+            System.out.println("Database ERROR");
+        }
     }
 
     protected void setup() {
@@ -53,10 +65,12 @@ public class ParkingAgent extends Agent {
 
         location = initializeParkingLocation();
 
+        System.out.println(Arrays.toString(location));
+
 
         // Send position to the middleware server.
         try {
-            sendData(getAID().getName(), "parking", Arrays.toString(location));
+            sendParkingData(getAID().getName(), "parking", Arrays.toString(location), Integer.toString(freeParkingSlots));
             isConnectedToDatabase = true;
         } catch (Exception e) {
             System.out.println("Database ERROR");

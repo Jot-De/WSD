@@ -8,40 +8,35 @@ class Map extends React.Component {
   constructor(props) {
     super(props);
     this.hookURL = "http://localhost:3000";
+    this.cache = {};
     this.state = {
       grid: [],
-      agents: [
-        ["car1", { type: "car", location: "[0, 1]" }],
-        ["car2", { type: "car", location: "[0, 5]" }],
-        ["parking1", { type: "parking", location: "[2, 10]" }]
-      ]
+      agents: []
     };
   }
 
   componentDidMount() {
+    this.initializeGrid();
     const hookURL = this.hookURL;
     const socket = socketIOClient(hookURL);
     socket.on("update", agents => {
-      this.updateBoard(true);
       this.setState({ agents: agents }, this.updateBoard);
     });
-
-    const grid = getInitialGrid();
-    this.setState({ grid });
   }
 
-  updateBoard = (clearData = false) => {
-    const grid = this.state.grid;
+  updateBoard = () => {
+    const grid = this.getInitialGrid();
     const agents = this.state.agents;
     agents.forEach(agent => {
       // FIXME: Please don't parse string to array here.
       const [row, col] = agent[1].location.match(/\d+/g);
-      const type = clearData ? "none" : agent[1].type;
 
       const tile = grid[row][col];
       const newTile = {
         ...tile,
-        type: type
+        isParking: agent[1].type === "parking",
+        isCar: agent[1].type === "car",
+        freeSlots: agent[1].freeSlots
       };
       grid[row][col] = newTile;
     });
@@ -55,12 +50,15 @@ class Map extends React.Component {
           return (
             <div className="row" key={rowIdx}>
               {row.map((tile, tileIdx) => {
-                const { type } = tile;
+                const { type, isParking, isCar, freeSlots } = tile;
                 return (
                   <Tile
                     key={tileIdx}
                     name={`${rowIdx}.${tileIdx}`}
                     type={type}
+                    isParking={isParking}
+                    isCar={isCar}
+                    freeSlots={freeSlots}
                   />
                 );
               })}
@@ -70,26 +68,53 @@ class Map extends React.Component {
       </div>
     );
   }
+
+  initializeGrid = () => {
+    const grid = this.getInitialGrid();
+    this.setState({ grid });
+  };
+
+  getInitialGrid = () => {
+    if (!this.cache.initialGrid) {
+      const grid = [];
+      for (let row = 0; row < 21; row++) {
+        const currentRow = [];
+        for (let col = 0; col < 41; col++) {
+          if (row % 5 === 0 || col % 5 === 0)
+            currentRow.push(createTile(col, row, "road"));
+          else
+            currentRow.push(createTile(col, row, `grass ${getRandomType()}`));
+        }
+        grid.push(currentRow);
+      }
+      this.cache.initialGrid = grid;
+      return grid;
+    } else {
+      const grid = [];
+      const { initialGrid } = this.cache;
+      for (const row of initialGrid) {
+        grid.push([...row]);
+      }
+      return grid;
+    }
+  };
 }
 
-const getInitialGrid = () => {
-  const grid = [];
-  for (let row = 0; row < 11; row++) {
-    const currentRow = [];
-    for (let col = 0; col < 11; col++) {
-      currentRow.push(createNode(col, row));
-    }
-    grid.push(currentRow);
-  }
-  return grid;
-};
-
-const createNode = (col, row) => {
-  return {
+const createTile = (col, row, type) => {
+  const tile = {
     col,
     row,
-    type: "none"
+    type,
+    isParking: false,
+    isCar: false
   };
+  return tile;
 };
 
 export default Map;
+
+const getRandomType = () => {
+  const types = ["tree1", "tree2", "house"];
+  const rand = Math.floor(Math.random() * types.length);
+  return types[rand];
+};
