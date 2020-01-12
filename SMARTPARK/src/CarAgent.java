@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static utils.MapState.calculatePathBFS;
+import static utils.MapState.calculatePathBFSLength;
 import static utils.agentUtils.*;
 
 public class CarAgent extends Agent {
@@ -199,11 +200,11 @@ public class CarAgent extends Agent {
                             if (repliesCnt >= parkingAgents.length) {
 
                                 //Shortest path between car and parking.
-                                double shortestDistance = Double.MAX_VALUE;
+                                int shortestDistance = Integer.MAX_VALUE;
 
                                 for (AID parkingAgent : parkingAgents) {
                                     if (parkingAgentAvailability.get(parkingAgent)) {
-                                        double distanceToParking = calculateDistance(agentLocation, parkingAgentLocations.get(parkingAgent));
+                                        int distanceToParking = calculatePathBFSLength(agentLocation, parkingAgentLocations.get(parkingAgent));
 
                                         if (distanceToParking < shortestDistance) {
                                             shortestDistance = distanceToParking;
@@ -214,9 +215,9 @@ public class CarAgent extends Agent {
                                         System.out.println(myAgent.getName() + consoleIndentation + "Location " + parkingAgent.getName() + " " + Arrays.toString(parkingAgentLocations.get(parkingAgent)) + " is occupied.");
                                     }
                                 }
-                                if (shortestDistance != Double.MAX_VALUE) {
+                                if (shortestDistance != Integer.MAX_VALUE) {
                                     step = 2;
-                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %.2f \n"), shortestDistance);
+                                    System.out.printf((myAgent.getName() + consoleIndentation + "Best Location: " + Arrays.toString(parkingAgentLocations.get(closestParking)) + " and shortestDistance is %d \n"), shortestDistance);
                                 } else {
                                     // Repeat this behaviour from step 0.
                                     step = 0;

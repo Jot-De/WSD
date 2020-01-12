@@ -24,6 +24,52 @@ public class MapState {
         });
     }
 
+    public static int calculatePathBFSLength(int[] source, int[] target) {
+
+        if (!isGridInitialized) {
+            fillMapWithRoads();
+            isGridInitialized = true;
+        }
+
+        ArrayList<int[]> visitedTiles = new ArrayList<>();
+        Tile sourceTile = new Tile(source[0], source[1], visitedTiles);
+        Queue<Tile> queue = new LinkedList<Tile>();
+
+        // Helper matrix to determine whether we visited a tile.
+        int [][] visited = new int[grid.length][];
+        for(int i = 0; i < grid.length; i++)
+            visited[i] = grid[i].clone();
+
+        queue.add(sourceTile);
+
+        while(!queue.isEmpty()) {
+            Tile currentTile = queue.poll();
+
+            int i = currentTile.i;
+            int j = currentTile.j;
+
+            if (grid[i][j] == 0) {
+                continue;
+            }
+            if (visited[i][j] == 0) {
+                continue;
+            } else {
+                visited[i][j] = 0;
+            }
+
+            if(i == target[0] && j == target[1]) {
+                return currentTile.visitedTiles.size();
+            }
+            else {
+                visited[i][j] = 0;
+
+                List<Tile> unvisitedNeighbours = getUnvisitedNeighbours(currentTile, grid, visited);
+                queue.addAll(unvisitedNeighbours);
+            }
+        }
+        return 0;
+    }
+
     public static ArrayList<int[]> calculatePathBFS(int[] source, int[] target) {
 
         if (!isGridInitialized) {
