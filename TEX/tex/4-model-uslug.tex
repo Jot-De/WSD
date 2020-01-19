@@ -1,10 +1,10 @@
 \newpage
 \section{Projekt systemu wieloagentowego}
 
-{\color{teal}System SmartPark został zaprojektowany zgodnie z wytycznymi metodologii GAIA. }
+System SmartPark został zaprojektowany zgodnie z wytycznymi metodologii GAIA.
 
 \subsection{Identyfikacja ról}
-{\color{teal}Role agenta CarAgent:}
+Role agenta CarAgent:
 \begin{enumerate}
 
 \item Client 
@@ -20,9 +20,9 @@
 \item Approacher
 \begin{itemize}
     \item zbliża się do parkingu i wysyła komunikat z aktualną lokalizacją
-    \item {\color{teal}może zrezygnować z zarezerwowanego miejsca}
+    \item może zrezygnować z zarezerwowanego miejsca
 \end{itemize}
-{\color{teal}Role agenta ParkingAgent: }
+Role agenta ParkingAgent: 
 \item Parking Manager
 \begin{itemize}
     \item kontrola dostępności miejsc na parkingu (stanu wewnętrznego),
@@ -77,7 +77,7 @@ Protokoły:
         MapParkings(SendCoordinates), PlaceReservations(SendAvailablePlaceInfo), FreePlace(ConfirmFreedPlace) \\ \hline
         Permissions:
 
-        {\color{teal}reads: sensors\_data}
+        reads: sensors\_data
 
         generates:  parking\_location, free\_place\_count                                                                                        \\ \hline
         Responsibilities:
