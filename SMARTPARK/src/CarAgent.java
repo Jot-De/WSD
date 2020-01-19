@@ -359,7 +359,7 @@ public class CarAgent extends Agent {
                      // pathToParking = calculatePathBFS(agentLocation, farAwayPlace);
 
                     for (int[] path : pathToParking) {
-                        System.out.println(Arrays.toString(path));
+                        // System.out.println(Arrays.toString(path));
                     }
                     System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
                 } else {

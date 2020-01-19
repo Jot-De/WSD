@@ -247,8 +247,7 @@ public class ParkingAgent extends Agent {
                             cancel.setConversationId("cancel-reservation-ct");
                             cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
                             myAgent.send(cancel);
-                            System.out.println(myAgent.getName() + consoleIndentation + "Car agent is going far away. Reservation cancelled.");
-                            System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking-myself.");
+                            System.out.println(myAgent.getName() + consoleIndentation + "Car agent is going far away. I am cancelling reservation.");
                             test=false;
                     }else {block();}}
                     prevPreviousCarLocation = previousCarLocation;
