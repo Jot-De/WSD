@@ -84,7 +84,7 @@ public class CarAgent extends Agent {
 //        addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
 //
         addBehaviour(new CancelClientReservation());
-        addBehaviour(new CancelReservationByIncreaseDistance());
+        addBehaviour(new ReceiveCancelReservationIncreaseDistance());
     }
 
     protected void takeDown() {
@@ -495,7 +495,7 @@ public class CarAgent extends Agent {
     }
 
 
-    private class CancelReservationByIncreaseDistance extends Behaviour {
+    private class ReceiveCancelReservationIncreaseDistance extends Behaviour {
         private int step = 0;
         MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
                 MessageTemplate.MatchConversationId("cancel-reservation-ct"));
