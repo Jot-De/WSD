@@ -15,16 +15,26 @@ import static utils.MapState.calculatePathBFS;
 import static utils.MapState.calculatePathBFSLength;
 import static utils.agentUtils.*;
 
+
 public class CarAgent extends Agent {
 
     //Agent's location.
     private int[] agentLocation = {0, 0};
 
+    // for TEST: change direction after X seconds and cause Cancelation
+    private long creationTime = System.currentTimeMillis();
+    private int[] farAwayPlace = {20,40};
+    private long TIME_BEFORE_MOVING_AWAY = 5000;
+    private boolean isZombie=false;
+
+    //for TEST: cancel reservation by car agent
+    private  long TIME_BEFORE_CANCELLATION = 99990000;
+
     private Map<AID, int[]> parkingAgentLocations = new HashMap<AID, int[]>();
     // List of other agents in the container.
     private AID[] parkingAgents = {
             new AID("parking1", AID.ISLOCALNAME),
-            new AID("parking2", AID.ISLOCALNAME)
+            //new AID("parking2", AID.ISLOCALNAME)
     };
 
     private boolean isUpdateListOfParkingsDone = false;
@@ -73,7 +83,8 @@ public class CarAgent extends Agent {
         });
 //        addBehaviour(new ListenForLocationCancelSubscriptionFromCarTracker());
 //
-//        addBehaviour(new CancelClientReservation());
+        addBehaviour(new CancelClientReservation());
+        addBehaviour(new CancelReservationByIncreaseDistance());
     }
 
     protected void takeDown() {
@@ -342,10 +353,14 @@ public class CarAgent extends Agent {
             if (isApproacher && !hasCarTracker) {
                 if (msg != null) {
                     hasCarTracker = true;
-                    pathToParking = calculatePathBFS(agentLocation, parkingAgentLocations.get(parkingTarget));
-//                    for (int[] path : pathToParking) {
-//                        System.out.println(Arrays.toString(path));
-//                    }
+                    // for TEST: change direction after 20 seconds
+
+                        pathToParking = calculatePathBFS(agentLocation, parkingAgentLocations.get(parkingTarget));
+                     // pathToParking = calculatePathBFS(agentLocation, farAwayPlace);
+
+                    for (int[] path : pathToParking) {
+                        System.out.println(Arrays.toString(path));
+                    }
                     System.out.println(myAgent.getName() + consoleIndentation + parkingTarget.getName() + "has subscribed for info about my location");
                 } else {
                     block();
@@ -380,7 +395,7 @@ public class CarAgent extends Agent {
 
         public void action() {
 //            boolean carHasMoved = oldAgentLocation[0] != agentLocation[0] && oldAgentLocation[1] != agentLocation[1];
-            if (hasCarTracker) {
+            if (hasCarTracker || isZombie) {
                 int[] parkingLocation = parkingAgentLocations.get(parkingTarget);
 //                System.out.println(Arrays.toString(parkingLocation));
 //                if (agentLocation[0] == parkingLocation[0] && agentLocation[1] == parkingLocation[1] ) {
@@ -388,6 +403,12 @@ public class CarAgent extends Agent {
 //                    return;
 //                }
                 if (pathToParking.size() > 0) {
+
+                    if ((System.currentTimeMillis() - creationTime) > TIME_BEFORE_MOVING_AWAY) {
+                        pathToParking = calculatePathBFS(agentLocation, farAwayPlace);
+                        isZombie=true;
+                    }
+
                     agentLocation = pathToParking.remove(0);
                     if (isConnectedToDatabase) {
                         try {
@@ -420,40 +441,80 @@ public class CarAgent extends Agent {
      * Part of CancelReservation Protocol.
      */
     private class CancelClientReservation extends Behaviour {
-        private MessageTemplate mt; // The template to receive replies
-        private int step = 0;
+            private MessageTemplate mt; // The template to receive replies
+            private int step = 0;
+            private long startTime = System.currentTimeMillis();
 
+            public void action() {
+                if (hasCarTracker) {
+                    switch (step) {
+                        case 0:
+                            if (System.currentTimeMillis() - startTime > TIME_BEFORE_CANCELLATION) {
+                                step = 1;
+                            }
+                            break;
+                        case 1:
+                            //Send a request to cancel reservation.
+                            ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
+                            cancel.addReceiver(parkingTarget);
+                            cancel.setConversationId("cancel-reservation");
+                            cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
+                            System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking.");
+                            myAgent.send(cancel);
+
+                            //Prepare the template to get proposals.
+                            mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cancel-reservation"),
+                                    MessageTemplate.MatchInReplyTo(cancel.getReplyWith()));
+                            step = 2;
+                            break;
+                        case 2:
+                            ACLMessage reply = myAgent.receive(mt);
+                            if (reply != null) {
+                                //Receive the place reservation order reply.
+                                if (reply.getPerformative() == ACLMessage.CONFIRM) {
+                                    // Reservation successful.
+                                    isCallForParkingOffersDone = false;
+                                    hasCarTracker = false;
+                                    parkingTarget = null;
+                                    isApproacher = false;
+                                    pathToParking = null;
+                                    System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled.");
+                                    step = 3;
+                                }
+                            } else {
+                                block();
+                            }
+                            break;
+                    }
+                }
+            }
+
+        public boolean done() { // if we return true this behaviour will end its cycle
+            return step == 3;
+        }
+    }
+
+
+    private class CancelReservationByIncreaseDistance extends Behaviour {
+        private int step = 0;
+        MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
+                MessageTemplate.MatchConversationId("cancel-reservation-ct"));
         public void action() {
             if (hasCarTracker) {
                 switch (step) {
                     case 0:
-                        //Send a request to cancel reservation.
-                        ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
-                        cancel.addReceiver(parkingTarget);
-                        cancel.setConversationId("cancel-reservation");
-                        cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
-                        System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking.");
-                        myAgent.send(cancel);
-
-                        //Prepare the template to get proposals.
-                        mt = MessageTemplate.and(MessageTemplate.MatchConversationId("cancel-reservation"),
-                                MessageTemplate.MatchInReplyTo(cancel.getReplyWith()));
-                        step = 1;
-                        break;
-                    case 1:
                         ACLMessage reply = myAgent.receive(mt);
                         if (reply != null) {
                             //Receive the place reservation order reply.
-                            if (reply.getPerformative() == ACLMessage.CONFIRM) {
+
                                 // Reservation successful.
                                 isCallForParkingOffersDone = false;
                                 hasCarTracker = false;
                                 parkingTarget = null;
                                 isApproacher = false;
-                                pathToParking = null;
-                                System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled.");
-                                step = 2;
-                            }
+                                System.out.println(myAgent.getName() + consoleIndentation + "Reservation cancelled by car tracker.");
+                                step = 1;
+
                         } else {
                             block();
                         }
@@ -463,9 +524,10 @@ public class CarAgent extends Agent {
         }
 
         public boolean done() { // if we return true this behaviour will end its cycle
-            return step == 2;
+            return step == 1;
         }
     }
+
 }
 
 

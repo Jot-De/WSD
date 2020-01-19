@@ -20,7 +20,8 @@ public class agentUtils {
     private static ArrayList<int[]> createdLocations = new ArrayList<>();
     public static HashMap<int[],Boolean> possibleParkingLocations = new HashMap<>() {{
        put(new int[] {1, 1}, true);
-       put(new int[] {19, 39}, true);
+      /*
+        put(new int[] {19, 39}, true);
         put(new int[] {1, 39}, true);
         put(new int[] {6, 1}, true);
         put(new int[] {11, 1}, true);
@@ -31,6 +32,8 @@ public class agentUtils {
         put(new int[] {6, 21}, true);
         put(new int[] {11, 21}, true);
         put(new int[] {16, 21}, true);
+
+       */
     }};
 
     /**

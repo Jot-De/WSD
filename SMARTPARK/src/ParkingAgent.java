@@ -14,6 +14,8 @@ import static utils.agentUtils.*;
 public class ParkingAgent extends Agent {
 
     private int[] location;
+
+    private int[] previousCarLocation={-99,-99};
     private int freeParkingSlots = 3;
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
@@ -23,6 +25,9 @@ public class ParkingAgent extends Agent {
     public static String consoleIndentation = "\t\t";
 
     private boolean isConnectedToDatabase = false;
+
+    //zmienna tylko do testu
+    private boolean test=true;
 
     private void decreaseFreeParkingSlotValue() {
         if (freeParkingSlots > 0) {
@@ -82,6 +87,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new GetReservationInfo());
         addBehaviour(new ConfirmClientCancellation());
         addBehaviour(new TrackCar());
+        addBehaviour(new ConfirmCancellationIncreaseDistance());
     }
 
     protected void takeDown() {
@@ -232,6 +238,19 @@ public class ParkingAgent extends Agent {
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
                     System.out.println(myAgent.getName() + consoleIndentation + "Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
+                    if (calculateDistance(location,carLocation) > calculateDistance(location, previousCarLocation))
+                    {   if(test){
+                            ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
+                            cancel.addReceiver(client_ID);
+                            cancel.addReceiver(myAgent.getAID());
+                            cancel.setConversationId("cancel-reservation-ct");
+                            cancel.setReplyWith("cancel" + System.currentTimeMillis()); // Unique value.
+                            myAgent.send(cancel);
+                            System.out.println(myAgent.getName() + consoleIndentation + "Car agent is going far away. Reservation cancelled.");
+                            System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking-myself.");
+                            test=false;
+                    }else {block();}}
+                    previousCarLocation = carLocation;
                     if (carLocation[0] == location[0] && carLocation[1] == location[1]) {
                         // Cancel communication if car arrived at the parking.
                         ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
@@ -258,12 +277,33 @@ public class ParkingAgent extends Agent {
                     MessageTemplate.MatchConversationId("cancel-reservation"));
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
+
                 ACLMessage reply = msg.createReply();
 
                 reply.setPerformative(ACLMessage.CONFIRM);
                 increaseFreeParkingSlotValue();
 
                 System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. This place is available for further customers");
+                myAgent.send(reply);
+            } else {
+                block();
+            }
+        }
+    }
+
+    private class ConfirmCancellationIncreaseDistance extends CyclicBehaviour {
+        public void action() {
+            MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
+                    MessageTemplate.MatchConversationId("cancel-reservation-ct"));
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg != null) {
+
+                ACLMessage reply = msg.createReply();
+
+                reply.setPerformative(ACLMessage.CONFIRM);
+                increaseFreeParkingSlotValue();
+
+                System.out.println(myAgent.getName() + consoleIndentation + "Send info about cancelling the reservation. Car increased distance.");
                 myAgent.send(reply);
             } else {
                 block();
