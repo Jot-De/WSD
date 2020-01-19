@@ -16,6 +16,7 @@ public class ParkingAgent extends Agent {
     private int[] location;
 
     private int[] previousCarLocation={-99,-99};
+    private int[] prevPreviousCarLocation={-100,-100};
     private int freeParkingSlots = 3;
     private boolean isFree;
     Random rand = new Random(); // Creating Random object.
@@ -238,7 +239,7 @@ public class ParkingAgent extends Agent {
                 if (carAgentLocations.containsKey(client_ID)) {
                     carAgentLocations.put(client_ID, carLocation);
                     System.out.println(myAgent.getName() + consoleIndentation + "Current location of " + client_ID.getName() + " is " + Arrays.toString(carLocation));
-                    if (calculateDistance(location,carLocation) > calculateDistance(location, previousCarLocation))
+                    if ((calculateDistance(location,carLocation) > calculateDistance(location, previousCarLocation)) && (calculateDistance(location,carLocation) > calculateDistance(location, prevPreviousCarLocation)))
                     {   if(test){
                             ACLMessage cancel = new ACLMessage(ACLMessage.CANCEL);
                             cancel.addReceiver(client_ID);
@@ -250,6 +251,7 @@ public class ParkingAgent extends Agent {
                             System.out.println(myAgent.getName() + consoleIndentation + "Sent CANCEL to target parking-myself.");
                             test=false;
                     }else {block();}}
+                    prevPreviousCarLocation = previousCarLocation;
                     previousCarLocation = carLocation;
                     if (carLocation[0] == location[0] && carLocation[1] == location[1]) {
                         // Cancel communication if car arrived at the parking.

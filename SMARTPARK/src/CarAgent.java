@@ -24,7 +24,7 @@ public class CarAgent extends Agent {
     // for TEST: change direction after X seconds and cause Cancelation
     private long creationTime = System.currentTimeMillis();
     private int[] farAwayPlace = {20,40};
-    private long TIME_BEFORE_MOVING_AWAY = 5000;
+    private long TIME_BEFORE_MOVING_AWAY = 15000;
     private boolean isZombie=false;
 
     //for TEST: cancel reservation by car agent
