@@ -87,7 +87,7 @@ public class ParkingAgent extends Agent {
         addBehaviour(new GetReservationInfo());
         addBehaviour(new ConfirmClientCancellation());
         addBehaviour(new TrackCar());
-        addBehaviour(new ConfirmCancellationIncreaseDistance());
+        addBehaviour(new CancelReservationIncreaseDistance());
     }
 
     protected void takeDown() {
@@ -291,7 +291,7 @@ public class ParkingAgent extends Agent {
         }
     }
 
-    private class ConfirmCancellationIncreaseDistance extends CyclicBehaviour {
+    private class CancelReservationIncreaseDistance extends CyclicBehaviour {
         public void action() {
             MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.CANCEL),
                     MessageTemplate.MatchConversationId("cancel-reservation-ct"));
