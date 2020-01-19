@@ -1,0 +1,153 @@
+Hello car3@192.168.1.31:1099/JADE is ready.
+Hello car2@192.168.1.31:1099/JADE is ready.
+Hello parking1@192.168.1.31:1099/JADE is ready.
+Hello car4@192.168.1.31:1099/JADE is ready.
+Hello car1@192.168.1.31:1099/JADE is ready.
+[6, 21]
+car2@192.168.1.31:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+car3@192.168.1.31:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+car1@192.168.1.31:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+car4@192.168.1.31:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with location to car agent.
+parking1@192.168.1.31:1099/JADE		Sent reply with location to car agent.
+parking1@192.168.1.31:1099/JADE		Sent reply with location to car agent.
+parking1@192.168.1.31:1099/JADE		Sent reply with location to car agent.
+car2@192.168.1.31:1099/JADE			Received locations from all parking agents.
+car4@192.168.1.31:1099/JADE			Received locations from all parking agents.
+car3@192.168.1.31:1099/JADE			Received locations from all parking agents.
+car1@192.168.1.31:1099/JADE			Received locations from all parking agents.
+car4@192.168.1.31:1099/JADE			Location of parking1@192.168.1.31:1099/JADE is [6, 21]
+car2@192.168.1.31:1099/JADE			Location of parking1@192.168.1.31:1099/JADE is [6, 21]
+car2@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+car1@192.168.1.31:1099/JADE			Location of parking1@192.168.1.31:1099/JADE is [6, 21]
+car3@192.168.1.31:1099/JADE			Location of parking1@192.168.1.31:1099/JADE is [6, 21]
+car1@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is available for reservation.
+car2@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is available for reservation.
+car1@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is available for reservation.
+car2@192.168.1.31:1099/JADE			Best Location: [6, 21] and shortestDistance is 11 
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is available for reservation.
+car1@192.168.1.31:1099/JADE			Best Location: [6, 21] and shortestDistance is 6 
+car4@192.168.1.31:1099/JADE			Best Location: [6, 21] and shortestDistance is 18 
+car3@192.168.1.31:1099/JADE			Best Location: [6, 21] and shortestDistance is 24 
+parking1@192.168.1.31:1099/JADE		Sent reply with information about reservation.
+car2@192.168.1.31:1099/JADE			Place reserved at:parking1@192.168.1.31:1099/JADE
+car2@192.168.1.31:1099/JADE			Sent reservation info to parking1@192.168.1.31:1099/JADE
+parking1@192.168.1.31:1099/JADE		Sent reply with information about reservation.
+parking1@192.168.1.31:1099/JADE		Sent reply with information about reservation.
+car1@192.168.1.31:1099/JADE			Place reserved at:parking1@192.168.1.31:1099/JADE
+car1@192.168.1.31:1099/JADE			Sent reservation info to parking1@192.168.1.31:1099/JADE
+car3@192.168.1.31:1099/JADE			Failure. Parking is occupied.
+parking1@192.168.1.31:1099/JADE		Got reservation info from car2@192.168.1.31:1099/JADE
+parking1@192.168.1.31:1099/JADE		I am tracking now car2@192.168.1.31:1099/JADE
+parking1@192.168.1.31:1099/JADE		Sent reply with information about reservation.
+parking1@192.168.1.31:1099/JADE		Got reservation info from car1@192.168.1.31:1099/JADE
+parking1@192.168.1.31:1099/JADE		I am tracking now car1@192.168.1.31:1099/JADE
+car4@192.168.1.31:1099/JADE			Failure. Parking is occupied.
+car1@192.168.1.31:1099/JADE			parking1@192.168.1.31:1099/JADEhas subscribed for info about my location
+car2@192.168.1.31:1099/JADE			parking1@192.168.1.31:1099/JADEhas subscribed for info about my location
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [0, 17]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [5, 25]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [0, 18]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [5, 24]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [0, 19]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [5, 23]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [0, 20]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [5, 22]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [1, 20]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [5, 21]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [2, 20]
+parking1@192.168.1.31:1099/JADE		Current location of car1@192.168.1.31:1099/JADE is [6, 21]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+car1@192.168.1.31:1099/JADE			Received Cancel Subscription info from + parking1@192.168.1.31:1099/JADE. I stopped sending info...
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [3, 20]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [4, 20]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [5, 20]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [6, 20]
+car3@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car3@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car3@192.168.1.31:1099/JADE			No parking available for reservation
+car4@192.168.1.31:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.31:1099/JADE		Sent reply with information about availability
+car4@192.168.1.31:1099/JADE			Location parking1@192.168.1.31:1099/JADE [6, 21] is occupied.
+car4@192.168.1.31:1099/JADE			No parking available for reservation
+parking1@192.168.1.31:1099/JADE		Current location of car2@192.168.1.31:1099/JADE is [6, 21]
+car2@192.168.1.31:1099/JADE			Received Cancel Subscription info from + parking1@192.168.1.31:1099/JADE. I stopped sending info...
