@@ -1,0 +1,66 @@
+Hello car2@192.168.1.16:1099/JADE is ready.
+Hello parking1@192.168.1.16:1099/JADE is ready.
+[16, 21]
+Hello car1@192.168.1.16:1099/JADE is ready.
+car2@192.168.1.16:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+parking1@192.168.1.16:1099/JADE		Sent reply with location to car agent.
+car2@192.168.1.16:1099/JADE			Received locations from all parking agents.
+car2@192.168.1.16:1099/JADE			Location of parking1@192.168.1.16:1099/JADE is [16, 21]
+car2@192.168.1.16:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.16:1099/JADE		Sent reply with information about availability
+car2@192.168.1.16:1099/JADE			Location parking1@192.168.1.16:1099/JADE [16, 21] is available for reservation.
+car2@192.168.1.16:1099/JADE			Best Location: [16, 21] and shortestDistance is 11 
+car1@192.168.1.16:1099/JADE			Sent INFORM_REF to parking agents. Waiting for replies...
+parking1@192.168.1.16:1099/JADE		Sent reply with information about reservation.
+parking1@192.168.1.16:1099/JADE		Sent reply with location to car agent.
+car2@192.168.1.16:1099/JADE			Place reserved at:parking1@192.168.1.16:1099/JADE
+car1@192.168.1.16:1099/JADE			Received locations from all parking agents.
+car1@192.168.1.16:1099/JADE			Location of parking1@192.168.1.16:1099/JADE is [16, 21]
+car2@192.168.1.16:1099/JADE			Sent reservation info to parking1@192.168.1.16:1099/JADE
+car1@192.168.1.16:1099/JADE			Sent CFP to parking agents. Waiting for replies...
+parking1@192.168.1.16:1099/JADE		Got reservation info from car2@192.168.1.16:1099/JADE
+parking1@192.168.1.16:1099/JADE		I am tracking now car2@192.168.1.16:1099/JADE
+parking1@192.168.1.16:1099/JADE		Sent reply with information about availability
+car2@192.168.1.16:1099/JADE			parking1@192.168.1.16:1099/JADEhas subscribed for info about my location
+car1@192.168.1.16:1099/JADE			Location parking1@192.168.1.16:1099/JADE [16, 21] is available for reservation.
+car1@192.168.1.16:1099/JADE			Best Location: [16, 21] and shortestDistance is 21 
+parking1@192.168.1.16:1099/JADE		Sent reply with information about reservation.
+car1@192.168.1.16:1099/JADE			Place reserved at:parking1@192.168.1.16:1099/JADE
+car1@192.168.1.16:1099/JADE			Sent reservation info to parking1@192.168.1.16:1099/JADE
+parking1@192.168.1.16:1099/JADE		Got reservation info from car1@192.168.1.16:1099/JADE
+parking1@192.168.1.16:1099/JADE		I am tracking now car1@192.168.1.16:1099/JADE
+car1@192.168.1.16:1099/JADE			parking1@192.168.1.16:1099/JADEhas subscribed for info about my location
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [12, 15]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 40]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [13, 15]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 39]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [14, 15]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 38]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 15]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 37]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 16]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 36]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 17]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 35]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 18]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 34]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 19]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 33]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [15, 20]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 32]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [16, 20]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 31]
+parking1@192.168.1.16:1099/JADE		Current location of car2@192.168.1.16:1099/JADE is [16, 21]
+car2@192.168.1.16:1099/JADE			Received Cancel Subscription info from + parking1@192.168.1.16:1099/JADE. I stopped sending info...
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 30]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 29]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 28]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 27]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 26]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 25]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 24]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 23]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 22]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [15, 21]
+parking1@192.168.1.16:1099/JADE		Current location of car1@192.168.1.16:1099/JADE is [16, 21]
+car1@192.168.1.16:1099/JADE			Received Cancel Subscription info from + parking1@192.168.1.16:1099/JADE. I stopped sending info...
